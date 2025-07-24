@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        
+    - name: Build
+      run: |
+        cd utopia-rs
+        cargo build --release
+        
+    - name: Test
+      run: |
+        cd utopia-rs
+        cargo test
+        
+    - name: Run Language Tests
+      run: |
+        chmod +x run_macos_tests.sh
+        ./run_macos_tests.sh
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: utopia-compiler
+        path: utopia-rs/target/release/utopia 
