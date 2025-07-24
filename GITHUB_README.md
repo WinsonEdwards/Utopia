@@ -2,7 +2,7 @@
 
 [![Rust](https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white)](https://www.rust-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Test Status](https://img.shields.io/badge/Tests-92%25%20Passing-brightgreen?style=for-the-badge)](https://github.com/WinsonEdwards/utopia)
+[![Test Status](https://img.shields.io/badge/Tests-92%25%20Passing-brightgreen?style=for-the-badge)](https://github.com/WinsonEdwards/Utopia)
 
 > **🏆 HISTORIC ACHIEVEMENT UNLOCKED!**  
 > The world's first unified compiler supporting **50 programming languages** with **cross-language function calls**!
@@ -63,7 +63,7 @@ function processData(data) {
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/WinsonEdwards/utopia.git
+git clone https://github.com/WinsonEdwards/Utopia.git
 cd utopia
 
 # Build the compiler
@@ -147,7 +147,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ### Development Setup
 ```bash
-git clone https://github.com/WinsonEdwards/utopia.git
+git clone https://github.com/WinsonEdwards/Utopia.git
 cd utopia/utopia-rs
 cargo build
 cargo test
@@ -166,7 +166,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🌟 Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=WinsonEdwards/utopia&type=Date)](https://star-history.com/#WinsonEdwards/utopia&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=WinsonEdwards/Utopia&type=Date)](https://star-history.com/#WinsonEdwards/Utopia&Date)
 
 ## 📈 Project Stats
 
