@@ -4,7 +4,7 @@
 
 ### 1. Clone and Build
 ```bash
-git clone https://github.com/yourusername/utopia.git
+git clone https://github.com/WinsonEdwards/utopia.git
 cd utopia/utopia-rs
 cargo build --release
 cd ..

@@ -2,7 +2,7 @@
 
 [![Rust](https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white)](https://www.rust-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Test Status](https://img.shields.io/badge/Tests-92%25%20Passing-brightgreen?style=for-the-badge)](https://github.com/yourusername/utopia)
+[![Test Status](https://img.shields.io/badge/Tests-92%25%20Passing-brightgreen?style=for-the-badge)](https://github.com/WinsonEdwards/utopia)
 
 > **🏆 HISTORIC ACHIEVEMENT UNLOCKED!**  
 > The world's first unified compiler supporting **50 programming languages** with **cross-language function calls**!
@@ -63,7 +63,7 @@ function processData(data) {
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/utopia.git
+git clone https://github.com/WinsonEdwards/utopia.git
 cd utopia
 
 # Build the compiler
@@ -147,7 +147,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ### Development Setup
 ```bash
-git clone https://github.com/yourusername/utopia.git
+git clone https://github.com/WinsonEdwards/utopia.git
 cd utopia/utopia-rs
 cargo build
 cargo test
@@ -166,7 +166,27 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🌟 Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=yourusername/utopia&type=Date)](https://star-history.com/#yourusername/utopia&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=WinsonEdwards/utopia&type=Date)](https://star-history.com/#WinsonEdwards/utopia&Date)
+
+## 📈 Project Stats
+
+![GitHub stars](https://img.shields.io/github/stars/yourusername/utopia?style=social)
+![GitHub forks](https://img.shields.io/github/forks/yourusername/utopia?style=social)
+![GitHub issues](https://img.shields.io/github/issues/yourusername/utopia)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/yourusername/utopia)
+![GitHub contributors](https://img.shields.io/github/contributors/yourusername/utopia)
+![GitHub last commit](https://img.shields.io/github/last-commit/yourusername/utopia)
+
+## 🎯 Quick Demo
+
+```bash
+# Clone and try it now!
+git clone https://github.com/yourusername/utopia.git
+cd utopia/utopia-rs
+cargo build --release
+cd ..
+./utopia-rs/target/release/utopia compile examples/simple_test.uto --target python
+```
 
 ---
 
