@@ -1,0 +1,24 @@
+// Test SQL compilation
+// Demonstrates SQL stored procedures for database management
+
+@lang sql {
+function getUserById(userId) {
+    return "SELECT * FROM users WHERE id = " + userId;
+}
+
+function calculateTotal(price, tax) {
+    return price + (price * tax);
+}
+}
+
+@lang main {
+let customerId = 123;
+let userData = sql::getUserById(customerId);
+
+let itemPrice = 99.99;
+let taxRate = 0.08;
+let totalPrice = sql::calculateTotal(itemPrice, taxRate);
+
+console.log("User data query: " + userData);
+console.log("Total price: " + totalPrice);
+} 

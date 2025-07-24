@@ -1,0 +1,33 @@
+// Test Objective-C compilation
+// Demonstrates Objective-C methods for legacy iOS/macOS development
+
+@lang objc {
+function setupViewController(viewController, title) {
+    return "[" + viewController + " setTitle:@\"" + title + "\"]";
+}
+
+function performNetworkRequest(url) {
+    return "NSURLRequest with " + url;
+}
+
+function updateUserInterface(element, value) {
+    return "Updating " + element + " with value: " + value;
+}
+}
+
+@lang main {
+let controller = "mainViewController";
+let appTitle = "Legacy iOS App";
+let setupResult = objc::setupViewController(controller, appTitle);
+
+let apiEndpoint = "https://api.example.com/data";
+let networkResult = objc::performNetworkRequest(apiEndpoint);
+
+let uiElement = "statusLabel";
+let statusValue = "Connected";
+let uiResult = objc::updateUserInterface(uiElement, statusValue);
+
+console.log("Setup: " + setupResult);
+console.log("Network: " + networkResult);
+console.log("UI Update: " + uiResult);
+} 

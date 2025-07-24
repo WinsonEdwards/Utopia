@@ -1,0 +1,22 @@
+// Test Ada compilation
+// Demonstrates Ada code generation for safety-critical systems
+
+@lang ada {
+function calculateSafetyFactor(load, capacity) {
+    return capacity / load;
+}
+
+function getSystemStatus(value) {
+    return "System status: " + value;
+}
+}
+
+@lang main {
+let systemLoad = 80;
+let systemCapacity = 120;
+let safetyFactor = ada::calculateSafetyFactor(systemLoad, systemCapacity);
+let status = ada::getSystemStatus("operational");
+
+console.log("Safety factor: " + safetyFactor);
+console.log(status);
+} 

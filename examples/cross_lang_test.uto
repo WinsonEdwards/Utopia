@@ -1,0 +1,14 @@
+@lang main {
+    function main() {
+        let x = 5;
+        let y = 10;
+        let result = python::add(x, y);
+        print(result);
+    }
+}
+
+@lang python {
+    function add(a: number, b: number) -> number {
+        return a + b;
+    }
+} 

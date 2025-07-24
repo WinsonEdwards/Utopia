@@ -1,0 +1,52 @@
+// 🚀 Utopia 統一語法示範 - 簡化版
+// One Syntax, Multiple Languages!
+
+@lang python {
+function calculateSum(a, b) {
+    return a + b;
+}
+
+function processText(text) {
+    return "Python處理: " + text;
+}
+}
+
+@lang javascript {
+function createAlert(message) {
+    return "JS Alert: " + message;
+}
+
+function formatNumber(num) {
+    return "格式化數字: " + num;
+}
+}
+
+@lang rust {
+function optimizeData(value) {
+    return value * 10;
+}
+}
+
+@lang main {
+let num1 = 15;
+let num2 = 25;
+let sum = python::calculateSum(num1, num2);
+
+let greeting = "歡迎使用 Utopia!";
+let processedText = python::processText(greeting);
+
+let alertMsg = "統一語法成功!";
+let jsAlert = javascript::createAlert(alertMsg);
+
+let numberValue = 42;
+let formattedNum = javascript::formatNumber(numberValue);
+
+let dataValue = 7;
+let optimizedValue = rust::optimizeData(dataValue);
+
+console.log("總和: " + sum);
+console.log("處理文字: " + processedText);
+console.log("JS 警告: " + jsAlert);
+console.log("格式化: " + formattedNum);
+console.log("優化值: " + optimizedValue);
+} 

@@ -1,0 +1,21 @@
+// Test PHP compilation
+// Demonstrates basic PHP code generation
+
+@lang php {
+function formatPrice(price) {
+    return "$" + price;
+}
+
+function calculateTax(amount, rate) {
+    return amount * rate;
+}
+}
+
+@lang main {
+let itemPrice = 100;
+let taxRate = 0.08;
+let tax = php::calculateTax(itemPrice, taxRate);
+let formattedPrice = php::formatPrice(itemPrice + tax);
+
+console.log("Total price: " + formattedPrice);
+} 

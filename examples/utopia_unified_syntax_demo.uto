@@ -1,0 +1,84 @@
+// 🚀 Utopia 統一語法示範
+// 一種語法，編譯到所有語言！
+// Unified Syntax Demo - One Language to Rule Them All!
+
+// ===== 基本語法 Basic Syntax =====
+let message = "Hello from Utopia!";
+let count = 42;
+let isActive = true;
+
+// ===== 函數定義 Function Definitions =====
+function calculateArea(width, height) {
+    return width * height;
+}
+
+function processData(data, multiplier) {
+    let result = data * multiplier;
+    if (result > 100) {
+        return "Large value: " + result;
+    } else {
+        return "Small value: " + result;
+    }
+}
+
+// ===== 跨語言調用 Cross-Language Calls =====
+@lang python {
+function analyzeData(dataset) {
+    let mean = 0;
+    let sum = 0;
+    for (let i = 0; i < 10; i++) {
+        sum = sum + dataset;
+    }
+    return sum / 10;
+}
+}
+
+@lang javascript {
+function createWebComponent(elementId, content) {
+    return "Creating " + elementId + " with " + content;
+}
+}
+
+@lang rust {
+function optimizePerformance(input) {
+    return input * 2;
+}
+}
+
+@lang kotlin {
+function buildMobileApp(appName) {
+    return "Building Android app: " + appName;
+}
+}
+
+@lang swift {
+function buildIOSApp(appName) {
+    return "Building iOS app: " + appName;
+}
+}
+
+// ===== 主程序 Main Program =====
+@lang main {
+let width = 10;
+let height = 5;
+let area = calculateArea(width, height);
+
+let rawData = 25;
+let multiplier = 3;
+let processedData = processData(rawData, multiplier);
+
+// 跨語言調用 Cross-language calls
+let analysisResult = python::analyzeData(rawData);
+let webComponent = javascript::createWebComponent("button", "Click me");
+let optimizedValue = rust::optimizePerformance(rawData);
+let androidApp = kotlin::buildMobileApp("MyApp");
+let iosApp = swift::buildIOSApp("MyApp");
+
+console.log("Area: " + area);
+console.log("Processed: " + processedData);
+console.log("Analysis: " + analysisResult);
+console.log("Web: " + webComponent);
+console.log("Optimized: " + optimizedValue);
+console.log("Android: " + androidApp);
+console.log("iOS: " + iosApp);
+} 

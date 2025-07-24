@@ -1,0 +1,53 @@
+// Utopia 基本示例
+// 演示多语言融合和跨语言调用
+
+@lang javascript {
+function calculateSum(a, b) {
+    return a + b;
+}
+
+function multiply(a, b) {
+    return a * b;
+}
+}
+
+@lang python {
+function square(x) {
+    return x * x;
+}
+
+function double(x) {
+    return x + x;
+}
+}
+
+@lang c {
+function add(a, b) {
+    return a + b;
+}
+
+function subtract(a, b) {
+    return a - b;
+}
+}
+
+// 主程序：混合使用多种语言的功能
+@lang javascript {
+let a = 5;
+let b = 10;
+let sum = calculateSum(a, b);
+let product = multiply(a, b);
+
+let squared = py::square(a);
+let doubled = py::double(b);
+
+let added = c::add(a, b);
+let diff = c::subtract(b, a);
+
+console.log(sum);
+console.log(product);
+console.log(squared);
+console.log(doubled);
+console.log(added);
+console.log(diff);
+} 

@@ -1,0 +1,31 @@
+// Test Haskell compilation
+// Demonstrates Haskell functions for pure functional programming
+
+@lang haskell {
+function fibonacci(n) {
+    return "Computing fibonacci of " + n;
+}
+
+function quickSort(list) {
+    return "Sorting list: " + list;
+}
+
+function factorial(n) {
+    return "Computing factorial of " + n;
+}
+}
+
+@lang main {
+let number = 10;
+let fibResult = haskell::fibonacci(number);
+
+let unsortedList = "[3,1,4,1,5,9,2,6]";
+let sortResult = haskell::quickSort(unsortedList);
+
+let factNumber = 5;
+let factResult = haskell::factorial(factNumber);
+
+console.log("Fibonacci: " + fibResult);
+console.log("QuickSort: " + sortResult);
+console.log("Factorial: " + factResult);
+} 

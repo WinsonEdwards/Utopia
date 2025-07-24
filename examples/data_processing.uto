@@ -1,0 +1,113 @@
+// 数据处理示例
+// 演示如何在不同语言间处理和传递数据
+
+@lang python
+import json
+from typing import List, Dict, Any
+
+def load_data(filename: str) -> List[Dict[str, Any]]:
+    """加载 JSON 数据文件"""
+    with open(filename, 'r') as f:
+        return json.load(f)
+
+def filter_by_score(data: List[Dict], min_score: float) -> List[Dict]:
+    """过滤高分数据"""
+    return [item for item in data if item.get('score', 0) >= min_score]
+
+def calculate_statistics(scores: List[float]) -> Dict[str, float]:
+    """计算统计信息"""
+    if not scores:
+        return {'mean': 0, 'max': 0, 'min': 0}
+    
+    return {
+        'mean': sum(scores) / len(scores),
+        'max': max(scores),
+        'min': min(scores)
+    }
+
+@lang javascript
+function extractScores(data) {
+    /**
+     * 从数据数组中提取分数
+     */
+    return data.map(item => item.score || 0);
+}
+
+function formatReport(stats, total_count, filtered_count) {
+    /**
+     * 格式化报告
+     */
+    return {
+        total_records: total_count,
+        filtered_records: filtered_count,
+        statistics: stats,
+        filter_ratio: (filtered_count / total_count * 100).toFixed(2) + '%'
+    };
+}
+
+function displayResults(report) {
+    /**
+     * 显示结果
+     */
+    console.log('=== 数据处理报告 ===');
+    console.log(`总记录数: ${report.total_records}`);
+    console.log(`筛选后记录数: ${report.filtered_records}`);
+    console.log(`筛选比例: ${report.filter_ratio}`);
+    console.log('统计信息:');
+    console.log(`  平均分: ${report.statistics.mean.toFixed(2)}`);
+    console.log(`  最高分: ${report.statistics.max}`);
+    console.log(`  最低分: ${report.statistics.min}`);
+}
+
+@lang c
+double calculate_variance(double* scores, int count, double mean) {
+    /**
+     * 计算方差（高性能版本）
+     */
+    double sum_sq_diff = 0.0;
+    
+    for (int i = 0; i < count; i++) {
+        double diff = scores[i] - mean;
+        sum_sq_diff += diff * diff;
+    }
+    
+    return sum_sq_diff / count;
+}
+
+double calculate_standard_deviation(double variance) {
+    /**
+     * 计算标准差
+     */
+    return sqrt(variance);
+}
+
+// 主程序
+@lang javascript
+
+// 模拟数据（实际应用中从文件加载）
+let sampleData = [
+    {name: 'Alice', score: 85.5, category: 'A'},
+    {name: 'Bob', score: 92.0, category: 'A'},
+    {name: 'Charlie', score: 78.5, category: 'B'},
+    {name: 'Diana', score: 96.5, category: 'A'},
+    {name: 'Eve', score: 71.0, category: 'B'},
+    {name: 'Frank', score: 89.0, category: 'A'}
+];
+
+// 使用 Python 进行数据过滤和统计
+let filteredData = py::filter_by_score(sampleData, 80.0);
+let allScores = extractScores(sampleData);
+let filteredScores = extractScores(filteredData);
+let basicStats = py::calculate_statistics(filteredScores);
+
+// 使用 C 进行高性能数学计算
+let variance = c::calculate_variance(filteredScores, filteredScores.length, basicStats.mean);
+let stdDev = c::calculate_standard_deviation(variance);
+
+// 添加高级统计信息
+basicStats.variance = variance;
+basicStats.standard_deviation = stdDev;
+
+// 生成和显示报告
+let report = formatReport(basicStats, sampleData.length, filteredData.length);
+displayResults(report); 

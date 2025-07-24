@@ -1,0 +1,33 @@
+// Test Julia compilation
+// Demonstrates Julia functions for high-performance scientific computing
+
+@lang julia {
+function solveLinearSystem(matrixA, vectorB) {
+    return "A \\ b solution for " + matrixA + " and " + vectorB;
+}
+
+function performMatrixMultiplication(matrix1, matrix2) {
+    return "Matrix multiplication: " + matrix1 + " * " + matrix2;
+}
+
+function computeStatistics(dataset) {
+    return "Statistics for " + dataset + ": mean, std, etc.";
+}
+}
+
+@lang main {
+let coefficientMatrix = "[[1, 2], [3, 4]]";
+let constantVector = "[5, 6]";
+let solution = julia::solveLinearSystem(coefficientMatrix, constantVector);
+
+let matrixA = "rand(100, 100)";
+let matrixB = "rand(100, 100)";
+let multiplication = julia::performMatrixMultiplication(matrixA, matrixB);
+
+let scientificData = "randn(10000)";
+let stats = julia::computeStatistics(scientificData);
+
+console.log("Linear system: " + solution);
+console.log("Matrix ops: " + multiplication);
+console.log("Statistics: " + stats);
+} 

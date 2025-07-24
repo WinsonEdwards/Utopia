@@ -1,0 +1,33 @@
+// Test Prolog compilation
+// Demonstrates Prolog predicates for logic programming and AI
+
+@lang prolog {
+function isParent(parent, child) {
+    return parent == "john" && child == "mary";
+}
+
+function calculateFactorial(n) {
+    return n * (n - 1);
+}
+
+function solveConstraint(x, y) {
+    return x + y == 10;
+}
+}
+
+@lang main {
+let parentName = "john";
+let childName = "mary";
+let parentRelation = prolog::isParent(parentName, childName);
+
+let number = 5;
+let factorial = prolog::calculateFactorial(number);
+
+let var1 = 3;
+let var2 = 7;
+let constraintSolved = prolog::solveConstraint(var1, var2);
+
+console.log("Parent relation: " + parentRelation);
+console.log("Factorial: " + factorial);
+console.log("Constraint: " + constraintSolved);
+} 

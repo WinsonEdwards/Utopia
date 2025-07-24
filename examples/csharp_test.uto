@@ -1,0 +1,22 @@
+// Test C# compilation
+// Demonstrates basic C# code generation
+
+@lang csharp {
+function add(a, b) {
+    return a + b;
+}
+
+function greet(name) {
+    return "Hello, " + name + "!";
+}
+}
+
+@lang main {
+let x = 10;
+let y = 20;
+let sum = cs::add(x, y);
+let greeting = cs::greet("C# User");
+
+console.log(sum);
+console.log(greeting);
+} 

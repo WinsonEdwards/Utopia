@@ -1,0 +1,26 @@
+// Test Delphi/Object Pascal compilation
+// Demonstrates Object Pascal code generation for desktop applications
+
+@lang delphi {
+function formatWindowTitle(appName, version) {
+    return appName + " v" + version;
+}
+
+function calculateWindowSize(width, height, scale) {
+    return width * scale + height * scale;
+}
+}
+
+@lang main {
+let applicationName = "UtopiaApp";
+let currentVersion = "1.0";
+let windowTitle = delphi::formatWindowTitle(applicationName, currentVersion);
+
+let baseWidth = 800;
+let baseHeight = 600;
+let scaleFactor = 1.2;
+let totalSize = delphi::calculateWindowSize(baseWidth, baseHeight, scaleFactor);
+
+console.log("Window title: " + windowTitle);
+console.log("Total window size: " + totalSize);
+} 

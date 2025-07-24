@@ -1,0 +1,110 @@
+[package]
+name = "utopia"
+version = "0.3.0"
+edition = "2021"
+description = "🚀 Utopia Multi-Language Compiler - Ultimate Performance Edition"
+license = "MIT"
+repository = "https://github.com/utopia-lang/utopia"
+readme = "README.md"
+keywords = ["compiler", "multi-language", "optimization", "performance", "cross-language"]
+categories = ["compilers", "development-tools"]
+default-run = "utopia"
+
+[dependencies]
+# CLI and argument parsing
+clap = { version = "4.5", features = ["derive", "color"] }
+colored = "2.1"
+
+# Parsing and lexing
+nom = "7.1"
+pest = "2.7"
+pest_derive = "2.7"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+toml = "0.8"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# String and text processing
+regex = "1.10"
+lazy_static = "1.4"
+
+# Collections and data structures
+indexmap = "2.2"
+petgraph = "0.6"
+
+# Parallel processing
+rayon = "1.10"
+crossbeam = "0.8"
+
+# File system and path handling
+walkdir = "2.5"
+glob = "0.3"
+
+# Logging and diagnostics
+log = "0.4"
+env_logger = "0.11"
+
+# Memory optimization
+smallvec = "1.13"
+slotmap = "1.0"
+
+# Performance monitoring
+criterion = { version = "0.5", optional = true }
+
+# Code generation helpers
+handlebars = "5.1"
+tera = "1.19"
+
+# LLVM bindings (optional, for LLVM backend)
+inkwell = { version = "0.4", features = ["llvm17-0"], optional = true }
+
+# WebAssembly generation
+wasmtime = { version = "23.0", optional = true }
+wat = { version = "1.0", optional = true }
+
+[dev-dependencies]
+criterion = "0.5"
+proptest = "1.4"
+pretty_assertions = "1.4"
+
+[features]
+default = ["wasm"]
+llvm = ["inkwell"]
+wasm = ["wasmtime", "wat"]
+benchmarks = ["criterion"]
+
+[[bin]]
+name = "utopia"
+path = "src/main.rs"
+
+[[bin]]
+name = "utopia-server"
+path = "src/server.rs"
+required-features = ["llvm"]
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+opt-level = 3
+
+[profile.dev]
+opt-level = 1
+debug = true
+
+# Benchmarks will be added later
+# [[bench]]
+# name = "compiler_bench"
+# harness = false
+# required-features = ["benchmarks"]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

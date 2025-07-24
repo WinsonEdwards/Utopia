@@ -1,0 +1,91 @@
+# Rust build artifacts
+target/
+**/*.rs.bk
+Cargo.lock
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Generated output files
+output/
+*.c
+*.cpp
+*.rs
+*.py
+*.js
+*.ts
+*.java
+*.go
+*.zig
+*.nim
+*.cr
+*.sh
+*.vb
+*.pas
+*.bas
+*.st
+*.pl
+*.lisp
+*.erl
+*.ex
+*.scala
+*.sql
+*.m
+*.dart
+*.vbs
+*.lua
+*.rb
+*.php
+*.f90
+*.jl
+*.R
+*.rkt
+*.scm
+*.clj
+*.fs
+*.ml
+*.hs
+*.adb
+*.cob
+*.cs
+*.swift
+*.kt
+*.s
+*.wat
+*.ll
+*.cu
+
+# Test artifacts
+test_debug
+*.test
+*.tmp
+
+# Logs
+*.log
+logs/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/ 

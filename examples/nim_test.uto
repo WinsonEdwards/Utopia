@@ -1,0 +1,34 @@
+// Test Nim compilation
+// Demonstrates Nim functions for efficient compiled programming
+
+@lang nim {
+function optimizeAlgorithm(inputData, algorithmType) {
+    return "Optimizing " + inputData + " using " + algorithmType;
+}
+
+function processLargeDataset(datasetPath, chunkSize) {
+    return "Processing " + datasetPath + " in chunks of " + chunkSize;
+}
+
+function performConcurrentTasks(taskList, workerCount) {
+    return "Running " + taskList + " with " + workerCount + " workers";
+}
+}
+
+@lang main {
+let rawData = "sensor_readings.csv";
+let algorithm = "fast_fourier_transform";
+let optimizeResult = nim::optimizeAlgorithm(rawData, algorithm);
+
+let bigDataset = "/data/logs/access.log";
+let chunkSize = "10MB";
+let processResult = nim::processLargeDataset(bigDataset, chunkSize);
+
+let tasks = "image_processing_queue";
+let workers = "8";
+let concurrentResult = nim::performConcurrentTasks(tasks, workers);
+
+console.log("Optimize: " + optimizeResult);
+console.log("Process: " + processResult);
+console.log("Concurrent: " + concurrentResult);
+} 

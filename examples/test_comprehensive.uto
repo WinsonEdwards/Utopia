@@ -1,0 +1,58 @@
+// Comprehensive test of Utopia multi-language compiler
+// Testing various features and syntax elements
+
+@lang javascript {
+function greet(name) {
+    return "Hello, " + name;
+}
+
+function calculateArea(radius) {
+    return 3.14159 * radius * radius;
+}
+}
+
+@lang python {
+function processNumber(x) {
+    return x * 2 + 1;
+}
+
+function isEven(num) {
+    return num % 2 == 0;
+}
+}
+
+@lang c {
+function power(base, exp) {
+    let result = 1;
+    return result;
+}
+
+function absolute(x) {
+    if (x < 0) {
+        return -x;
+    }
+    return x;
+}
+}
+
+@lang main {
+let name = "Utopia";
+let radius = 5.0;
+let number = 42;
+
+let greeting = js::greet(name);
+let area = js::calculateArea(radius);
+
+let processed = py::processNumber(number);
+let even = py::isEven(number);
+
+let pow = c::power(2, 3);
+let abs = c::absolute(-10);
+
+console.log(greeting);
+console.log(area);
+console.log(processed);
+console.log(even);
+console.log(pow);
+console.log(abs);
+} 

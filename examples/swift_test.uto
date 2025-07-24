@@ -1,0 +1,37 @@
+// Test Swift compilation  
+// Demonstrates Swift functions for iOS/macOS app development
+
+@lang swift {
+function calculateDistance(x1, y1, x2, y2) {
+    let dx = x2 - x1;
+    let dy = y2 - y1;
+    return sqrt(dx * dx + dy * dy);
+}
+
+function createAlert(title, message) {
+    return title + ": " + message;
+}
+
+function processUserAction(actionType) {
+    return "Processing action: " + actionType;
+}
+}
+
+@lang main {
+let startX = 0;
+let startY = 0;
+let endX = 3;
+let endY = 4;
+let distance = swift::calculateDistance(startX, startY, endX, endY);
+
+let alertTitle = "Success";
+let alertMessage = "Operation completed successfully";
+let alert = swift::createAlert(alertTitle, alertMessage);
+
+let action = "button_tap";
+let actionResult = swift::processUserAction(action);
+
+console.log("Distance: " + distance);
+console.log("Alert: " + alert);
+console.log("Action: " + actionResult);
+} 

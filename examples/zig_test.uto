@@ -1,0 +1,34 @@
+// Test Zig compilation
+// Demonstrates Zig functions for systems programming with safety and performance
+
+@lang zig {
+function allocateMemory(size, alignment) {
+    return "Allocating " + size + " bytes with " + alignment + " alignment";
+}
+
+function manageSysCall(syscallName, parameters) {
+    return "Executing syscall " + syscallName + " with params: " + parameters;
+}
+
+function optimizeHotPath(functionName, cycleTarget) {
+    return "Optimizing " + functionName + " to " + cycleTarget + " cycles";
+}
+}
+
+@lang main {
+let memorySize = "4096";
+let memAlignment = "16-byte";
+let allocResult = zig::allocateMemory(memorySize, memAlignment);
+
+let syscall = "write";
+let params = "fd=1, buf=data, count=1024";
+let syscallResult = zig::manageSysCall(syscall, params);
+
+let hotFunction = "packet_parser";
+let targetCycles = "100";
+let optimizeResult = zig::optimizeHotPath(hotFunction, targetCycles);
+
+console.log("Memory: " + allocResult);
+console.log("Syscall: " + syscallResult);
+console.log("Optimize: " + optimizeResult);
+} 

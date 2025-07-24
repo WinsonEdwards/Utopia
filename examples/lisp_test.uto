@@ -1,0 +1,34 @@
+// Test Lisp compilation
+// Demonstrates Lisp functions for AI research and academic programming
+
+@lang lisp {
+function processSymbol(symbol, context) {
+    return symbol + " in context " + context;
+}
+
+function evaluateExpression(expr, env) {
+    return "Evaluating " + expr + " in environment " + env;
+}
+
+function searchKnowledgeBase(query, database) {
+    return "Searching for " + query + " in " + database;
+}
+}
+
+@lang main {
+let symbol = "lambda";
+let context = "functional_programming";
+let symbolResult = lisp::processSymbol(symbol, context);
+
+let expression = "(+ 1 2 3)";
+let environment = "global";
+let evalResult = lisp::evaluateExpression(expression, environment);
+
+let searchQuery = "artificial_intelligence";
+let knowledgeDB = "academic_papers";
+let searchResult = lisp::searchKnowledgeBase(searchQuery, knowledgeDB);
+
+console.log("Symbol: " + symbolResult);
+console.log("Evaluation: " + evalResult);
+console.log("Search: " + searchResult);
+} 

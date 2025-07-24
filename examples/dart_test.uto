@@ -1,0 +1,32 @@
+// Test Dart compilation
+// Demonstrates Dart functions for Flutter mobile app development
+
+@lang dart {
+function buildWidget(title, content) {
+    return "Building widget: " + title + " with " + content;
+}
+
+function handleUserInput(input) {
+    return "Processing user input: " + input;
+}
+
+function navigateToScreen(screenName) {
+    return "Navigating to " + screenName;
+}
+}
+
+@lang main {
+let appTitle = "My Flutter App";
+let widgetContent = "Welcome Message";
+let widget = dart::buildWidget(appTitle, widgetContent);
+
+let userInput = "button_pressed";
+let inputResult = dart::handleUserInput(userInput);
+
+let targetScreen = "profile_page";
+let navigationResult = dart::navigateToScreen(targetScreen);
+
+console.log("Widget: " + widget);
+console.log("Input: " + inputResult);
+console.log("Navigation: " + navigationResult);
+} 

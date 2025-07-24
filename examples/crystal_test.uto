@@ -1,0 +1,34 @@
+// Test Crystal compilation
+// Demonstrates Crystal functions for Ruby-like syntax with C-like performance
+
+@lang crystal {
+function buildWebService(serviceName, port) {
+    return "Building web service " + serviceName + " on port " + port;
+}
+
+function optimizePerformance(component, targetSpeed) {
+    return "Optimizing " + component + " for " + targetSpeed + " performance";
+}
+
+function handleConcurrentRequests(requestCount, responseTime) {
+    return "Handling " + requestCount + " requests in " + responseTime;
+}
+}
+
+@lang main {
+let service = "UtopiaAPI";
+let servicePort = "8080";
+let webResult = crystal::buildWebService(service, servicePort);
+
+let componentName = "database_layer";
+let speedTarget = "sub-millisecond";
+let perfResult = crystal::optimizePerformance(componentName, speedTarget);
+
+let requests = "10000";
+let maxTime = "50ms";
+let concurrencyResult = crystal::handleConcurrentRequests(requests, maxTime);
+
+console.log("Web Service: " + webResult);
+console.log("Performance: " + perfResult);
+console.log("Concurrency: " + concurrencyResult);
+} 
