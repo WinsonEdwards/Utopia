@@ -2,193 +2,52 @@
 
 ## Overview
 
-The Utopia command-line interface provides tools for compiling, running, and managing Utopia code.
+The Utopia CLI lets you compile, run, and manage code in 50 programming languages from a single tool.
 
-## Installation
+## Main Commands
+
+| Command   | Description                                  |
+|-----------|----------------------------------------------|
+| compile   | Compile Utopia code to a target language     |
+| run       | Run Utopia code directly                     |
+| repl      | Start the interactive shell                  |
+| analyze   | Analyze code for errors and warnings         |
+| check     | Type-check code                              |
+| format    | Format Utopia code                          |
+| info      | Show project/language info                   |
+| benchmark | Run performance benchmarks                   |
+| new       | Create a new Utopia project                  |
+| clean     | Remove build artifacts                       |
+
+## Compiling to a Target Language
 
 ```bash
-# Build from source
-cd utopia-rs
-cargo build --release
-
-# Install globally
-cargo install --path .
+utopia compile file.uto --target python --output out.py
+utopia compile file.uto --target c --output out.c
+utopia compile file.uto --target rust --output out.rs
+utopia compile file.uto --target javascript --output out.js
 ```
 
-## Commands
+## Supported Language Targets
 
-### compile
+- C, C++, Rust, Go, Zig
+- Python, JavaScript, TypeScript, Java, C#, Kotlin, Swift
+- Haskell, Clojure, F#, Lisp, Scheme, OCaml, Erlang, Elixir
+- Perl, PHP, Ruby, Lua, Bash, VBScript
+- R, MATLAB, Julia, Fortran
+- COBOL, Ada, Delphi, Visual Basic
+- SQL, Prolog
+- Racket, Smalltalk, Pascal, BASIC
+- Dart, Scala, Nim, Crystal, Objective-C
+- x86 ASM, LLVM IR, WebAssembly, CUDA, Embedded C
 
-Compile Utopia code to a target language.
-
-```bash
-utopia compile <file> --target <language> [options]
-```
-
-**Arguments:**
-- `file` - Input Utopia file (.uto)
-
-**Options:**
-- `--target <language>` - Target language (python, javascript, c, rust, etc.)
-- `--output <file>` - Output file path
-- `--verbose` - Enable verbose output
-
-**Examples:**
-```bash
-utopia compile app.uto --target python
-utopia compile app.uto --target javascript --output app.js
-utopia compile app.uto --target python --verbose
-```
-
-### run
-
-Execute Utopia code directly without compilation.
+## Examples
 
 ```bash
-utopia run <file> [options]
-```
-
-**Arguments:**
-- `file` - Utopia file to execute (.uto)
-
-**Options:**
-- `--verbose` - Enable verbose output
-
-**Examples:**
-```bash
-utopia run app.uto
-utopia run app.uto --verbose
-```
-
-### repl
-
-Start an interactive REPL (Read-Eval-Print Loop).
-
-```bash
-utopia repl [options]
-```
-
-**Options:**
-- `--verbose` - Enable verbose output
-
-**Examples:**
-```bash
+utopia compile myprog.uto --target python --output myprog.py
+utopia compile myprog.uto --target c --output myprog.c
+utopia run myprog.uto
 utopia repl
-utopia repl --verbose
 ```
 
-### analyze
-
-Analyze code structure and dependencies.
-
-```bash
-utopia analyze <file> [options]
-```
-
-**Arguments:**
-- `file` - Utopia file to analyze (.uto)
-
-**Examples:**
-```bash
-utopia analyze app.uto
-```
-
-### check
-
-Type check Utopia code.
-
-```bash
-utopia check <file> [options]
-```
-
-**Arguments:**
-- `file` - Utopia file to check (.uto)
-
-**Examples:**
-```bash
-utopia check app.uto
-```
-
-### format
-
-Format Utopia code.
-
-```bash
-utopia format <file> [options]
-```
-
-**Arguments:**
-- `file` - Utopia file to format (.uto)
-
-**Examples:**
-```bash
-utopia format app.uto
-```
-
-### info
-
-Show compiler information.
-
-```bash
-utopia info
-```
-
-### benchmark
-
-Run performance benchmarks.
-
-```bash
-utopia benchmark <file> [options]
-```
-
-**Arguments:**
-- `file` - Utopia file to benchmark (.uto)
-
-**Examples:**
-```bash
-utopia benchmark app.uto
-```
-
-### new
-
-Create a new Utopia project.
-
-```bash
-utopia new <project-name> [options]
-```
-
-**Arguments:**
-- `project-name` - Name of the new project
-
-**Examples:**
-```bash
-utopia new my-project
-```
-
-### clean
-
-Clean build artifacts.
-
-```bash
-utopia clean
-```
-
-### help
-
-Show help information.
-
-```bash
-utopia --help
-utopia <command> --help
-```
-
-## Global Options
-
-- `--verbose` - Enable verbose output
-- `--quiet` - Suppress output
-- `--version` - Show version information
-
-## Environment Variables
-
-- `UTOPIA_TARGET` - Default target language
-- `UTOPIA_OUTPUT_DIR` - Default output directory 
+See [docs/language-reference.md](language-reference.md) for language details. 

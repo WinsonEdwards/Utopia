@@ -1,18 +1,24 @@
 # Utopia Language Reference
 
-## Overview
+## Supported Programming Languages
 
-Utopia is a multi-language programming language that can compile to various target languages. It provides a unified syntax while allowing language-specific code blocks.
+Utopia supports the following 50 languages:
 
-## File Extension
+| C | C++ | Rust | Go | Zig |
+|---|-----|------|----|-----|
+| Python | JavaScript | TypeScript | Java | C# | Kotlin | Swift |
+| Haskell | Clojure | F# | Lisp | Scheme | OCaml | Erlang | Elixir |
+| Perl | PHP | Ruby | Lua | Bash | VBScript |
+| R | MATLAB | Julia | Fortran |
+| COBOL | Ada | Delphi | Visual Basic |
+| SQL | Prolog |
+| Racket | Smalltalk | Pascal | BASIC |
+| Dart | Scala | Nim | Crystal | Objective-C |
+| x86 ASM | LLVM IR | WebAssembly | CUDA | Embedded C |
 
-Utopia source files use the `.uto` extension.
+## Language Blocks
 
-## Basic Syntax
-
-### Language Blocks
-
-Code is organized into language-specific blocks:
+To write code for a specific language, use the `@lang` block:
 
 ```utopia
 @lang python {
@@ -20,9 +26,9 @@ Code is organized into language-specific blocks:
         return f"Hello, {name}!"
 }
 
-@lang javascript {
-    function process(data) {
-        return data.map(x => x * 2);
+@lang c {
+    int add(int a, int b) {
+        return a + b;
     }
 }
 
@@ -31,88 +37,39 @@ Code is organized into language-specific blocks:
 }
 ```
 
-### Variables
+## Cross-Language Calls
+
+You can call functions defined in other language blocks:
 
 ```utopia
-let x = 10;
-let message = "Hello";
-let isActive = true;
-```
-
-### Functions
-
-```utopia
-function add(a, b) {
-    return a + b;
+@lang c {
+int multiply(int a, int b) { return a * b; }
 }
 
-function greet(name) {
-    println("Hello,", name);
-}
-```
-
-### Control Flow
-
-```utopia
-if (x > 5) {
-    println("x is greater than 5");
-} else {
-    println("x is 5 or less");
-}
-
-let i = 0;
-while (i < 10) {
-    println("Count:", i);
-    i = i + 1;
-}
-```
-
-### Arrays and Objects
-
-```utopia
-let numbers = [1, 2, 3, 4, 5];
-let person = {
-    name: "Alice",
-    age: 30
-};
-```
-
-### Cross-Language Calls
-
-```utopia
 @lang python {
-    def python_function(x):
-        return x * 2
+def process(x): return x + 1
 }
 
 @lang main {
-    let result = python::python_function(5);
-    println("Result:", result);
+let result = c::multiply(3, 4);
+let processed = python::process(result);
+println(processed);
 }
 ```
 
-## Built-in Functions
-
-- `println(...)` - Print with newline
-- `print(...)` - Print without newline
-- `len(array)` - Get array length
-- `type_of(value)` - Get value type
-
-## Comments
+## Variables, Functions, and Control Flow
 
 ```utopia
-// Single line comment
-/* Multi-line
-   comment */
+@lang main {
+    let x = 10;
+    let y = 20;
+    function add(a, b) {
+        return a + b;
+    }
+    if (x < y) {
+        println("x is less than y");
+    }
+}
 ```
 
-## Type System
-
-Utopia uses dynamic typing with type inference:
-
-- Numbers: `42`, `3.14`
-- Strings: `"hello"`
-- Booleans: `true`, `false`
-- Arrays: `[1, 2, 3]`
-- Objects: `{key: "value"}`
-- Null: `null` 
+See more in [docs/examples.md](examples.md). 
