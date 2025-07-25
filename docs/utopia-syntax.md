@@ -1,453 +1,973 @@
-# Utopia Language Syntax Guide
+# 📝 **Utopia Syntax Reference**
 
-Utopia is a modern, unified programming language designed for multi-language compilation. This guide covers the complete syntax and language features of Utopia.
+Complete syntax documentation for the Utopia Multi-Language Compiler with practical examples and detailed explanations.
 
-## Table of Contents
+---
 
-1. [Basic Syntax](#basic-syntax)
-2. [Variables and Data Types](#variables-and-data-types)
-3. [Operators](#operators)
-4. [Control Flow](#control-flow)
-5. [Functions](#functions)
-6. [Data Structures](#data-structures)
-7. [Error Handling](#error-handling)
-8. [Modules and Imports](#modules-and-imports)
-9. [Comments](#comments)
-10. [Examples](#examples)
+## 📋 **Table of Contents**
 
-## Basic Syntax
+- [Basic Syntax](#-basic-syntax)
+- [Data Types](#-data-types)
+- [Variables and Constants](#-variables-and-constants)
+- [Operators](#-operators)
+- [Control Flow](#-control-flow)
+- [Functions](#-functions)
+- [Data Structures](#-data-structures)
+- [Language Blocks](#-language-blocks)
+- [Cross-Language Calls](#-cross-language-calls)
+- [Comments](#-comments)
+- [Advanced Features](#-advanced-features)
 
-### Program Structure
+---
 
-Every Utopia program starts with optional imports and contains statements:
+## 🔤 **Basic Syntax**
 
-```utopia
-// Import statements (optional)
-import "module_name"
-
-// Main program code
-println("Hello, Utopia!")
-```
-
-### Statements
-
-Statements in Utopia end with semicolons or newlines:
+### **Program Structure**
+Every Utopia program consists of language blocks and/or global statements:
 
 ```utopia
-x = 5;           // With semicolon
-y = 10           // Without semicolon (newline)
-println(x + y)   // Function call
-```
+// Global statements (executed in main context)
+let greeting = "Hello, World!"
+println(greeting)
 
-## Variables and Data Types
+// Language-specific blocks
+@lang python
+def calculate_fibonacci(n):
+    if n <= 1:
+        return n
+    return calculate_fibonacci(n-1) + calculate_fibonacci(n-2)
 
-### Variable Declaration
-
-Variables are declared using `let` or direct assignment:
-
-```utopia
-// Explicit declaration
-let name: string = "Utopia"
-let version: number = 1.0
-let isAwesome: boolean = true
-
-// Type inference
-name = "Utopia"      // string
-version = 1.0        // number
-isAwesome = true     // boolean
-```
-
-### Data Types
-
-Utopia supports the following basic types:
-
-#### Numbers
-```utopia
-let integer: number = 42
-let float: number = 3.14
-let negative: number = -10
-```
-
-#### Strings
-```utopia
-let message: string = "Hello, World!"
-let multiLine: string = """
-    This is a
-    multi-line string
-"""
-```
-
-#### Booleans
-```utopia
-let isTrue: boolean = true
-let isFalse: boolean = false
-```
-
-#### Arrays
-```utopia
-let numbers: number[] = [1, 2, 3, 4, 5]
-let mixed: any[] = [1, "hello", true]
-```
-
-#### Objects
-```utopia
-let person: object = {
-    name: "John",
-    age: 30,
-    city: "New York"
-}
-```
-
-## Operators
-
-### Arithmetic Operators
-```utopia
-let a: number = 10
-let b: number = 3
-
-let sum = a + b        // 13
-let difference = a - b // 7
-let product = a * b    // 30
-let quotient = a / b   // 3.333...
-let remainder = a % b  // 1
-let power = a ** b     // 1000
-```
-
-### Comparison Operators
-```utopia
-let x: number = 5
-let y: number = 10
-
-let equal = x == y        // false
-let notEqual = x != y     // true
-let lessThan = x < y      // true
-let greaterThan = x > y   // false
-let lessEqual = x <= y    // true
-let greaterEqual = x >= y // false
-```
-
-### Logical Operators
-```utopia
-let a: boolean = true
-let b: boolean = false
-
-let and = a && b    // false
-let or = a || b     // true
-let not = !a        // false
-```
-
-### Assignment Operators
-```utopia
-let x: number = 5
-
-x += 3   // x = 8
-x -= 2   // x = 6
-x *= 4   // x = 24
-x /= 3   // x = 8
-x %= 3   // x = 2
-```
-
-## Control Flow
-
-### If Statements
-```utopia
-let age: number = 18
-
-if age >= 18 {
-    println("You are an adult")
-} else if age >= 13 {
-    println("You are a teenager")
-} else {
-    println("You are a child")
-}
-```
-
-### Switch Statements
-```utopia
-let day: string = "Monday"
-
-switch day {
-    case "Monday":
-        println("Start of the week")
-    case "Friday":
-        println("TGIF!")
-    default:
-        println("Regular day")
-}
-```
-
-### Loops
-
-#### For Loop
-```utopia
-// Traditional for loop
-for let i = 0; i < 5; i++ {
-    println("Count:", i)
+@lang javascript
+function formatNumber(num) {
+    return num.toLocaleString();
 }
 
-// For-in loop (arrays)
-let fruits: string[] = ["apple", "banana", "orange"]
-for fruit in fruits {
-    println("I like", fruit)
-}
-
-// For-in loop (objects)
-let person: object = {name: "John", age: 30}
-for key, value in person {
-    println(key, ":", value)
-}
+// Main execution block
+@lang main
+let result = py::calculate_fibonacci(10)
+let formatted = js::formatNumber(result)
+println("Fibonacci 10:", formatted)
 ```
 
-#### While Loop
+### **Case Sensitivity**
+Utopia is **case-sensitive**:
 ```utopia
-let count: number = 0
-while count < 5 {
-    println("Count:", count)
-    count++
-}
+let myVariable = 10     // Different from
+let MyVariable = 20     // this variable
+let MYVARIABLE = 30     // and this one
 ```
 
-#### Do-While Loop
+### **Statement Termination**
+Statements are terminated with semicolons (`;`):
 ```utopia
-let i: number = 0
-do {
-    println("Value:", i)
-    i++
-} while i < 3
+let x = 5;              // Required
+println("Hello");       // Required
+function test() { }     // Optional for blocks
 ```
 
-## Functions
+---
 
-### Function Declaration
+## 🏗️ **Data Types**
+
+### **Primitive Types**
+
+#### **Number**
+All numbers are 64-bit floating point (IEEE 754):
 ```utopia
-// Basic function
-function greet(name: string): string {
-    return "Hello, " + name + "!"
-}
+let integer = 42
+let decimal = 3.14159
+let negative = -17
+let zero = 0
+let scientific = 1e6        // 1,000,000 (planned)
+let hex = 0xFF             // 255 (planned)
+let binary = 0b1010        // 10 (planned)
+```
 
-// Function with multiple parameters
-function add(a: number, b: number): number {
-    return a + b
-}
+#### **String**
+UTF-8 encoded text with single or double quotes:
+```utopia
+let singleQuote = 'Hello, World!'
+let doubleQuote = "Hello, Universe!"
+let empty = ""
+let multiline = "Line 1\nLine 2"
+let escaped = "Quote: \"Hello\""
+let unicode = "🚀 Utopia"
+```
 
-// Function with default parameters
-function greetWithTitle(name: string, title: string = "Mr."): string {
-    return "Hello, " + title + " " + name + "!"
-}
+**String Escape Sequences:**
+```utopia
+"\n"    // Newline
+"\t"    // Tab
+"\r"    // Carriage return
+"\\"    // Backslash
+"\""    // Double quote
+"\'"    // Single quote
+"\0"    // Null character (planned)
+```
 
-// Function with rest parameters
-function sum(...numbers: number[]): number {
-    let total: number = 0
-    for num in numbers {
-        total += num
+#### **Boolean**
+True or false values:
+```utopia
+let isTrue = true
+let isFalse = false
+let result = (5 > 3)        // true
+let comparison = (10 == 5)  // false
+```
+
+#### **Null**
+Represents absence of value:
+```utopia
+let empty = null
+let uninitialized = null
+function maybeReturn(condition) {
+    if (condition) {
+        return "value"
     }
-    return total
+    return null  // Explicit null return
 }
 ```
 
-### Function Calls
+---
+
+## 📦 **Variables and Constants**
+
+### **Variable Declaration**
+Use `let` for mutable variables:
 ```utopia
-let message = greet("Utopia")
-let result = add(5, 3)
-let greeting = greetWithTitle("Smith")
-let total = sum(1, 2, 3, 4, 5)
+let count = 0
+let name = "Alice"
+let isActive = true
+
+// Variables can be reassigned
+count = 10
+name = "Bob"
+isActive = false
 ```
 
-### Anonymous Functions
+### **Constant Declaration**
+Use `const` for immutable values:
 ```utopia
-let multiply = function(a: number, b: number): number {
-    return a * b
-}
+const PI = 3.14159
+const MAX_USERS = 100
+const APP_NAME = "Utopia Compiler"
 
-let result = multiply(4, 5) // 20
+// Constants cannot be reassigned
+// PI = 3.14  // Error: Cannot reassign constant
 ```
 
-### Arrow Functions
+### **Type Annotations** (Optional)
+Explicitly specify types for clarity:
 ```utopia
-let square = (x: number): number => x * x
-let add = (a: number, b: number): number => a + b
+let age: number = 25
+let username: string = "developer"
+let isLoggedIn: boolean = false
+let data: null = null
 
-let result1 = square(5)  // 25
-let result2 = add(3, 4)  // 7
-```
-
-## Data Structures
-
-### Arrays
-```utopia
-// Array declaration
+// Arrays
 let numbers: number[] = [1, 2, 3, 4, 5]
 let names: string[] = ["Alice", "Bob", "Charlie"]
 
-// Array methods
-let length = numbers.length
-let first = numbers[0]
-let last = numbers[numbers.length - 1]
-
-// Array operations
-numbers.push(6)           // Add to end
-numbers.pop()             // Remove from end
-numbers.unshift(0)        // Add to beginning
-numbers.shift()           // Remove from beginning
+// Function types
+let calculator: (number, number) -> number = add
 ```
 
-### Objects
+### **Type Inference**
+Utopia automatically infers types:
 ```utopia
-// Object declaration
-let person: object = {
-    name: "John Doe",
-    age: 30,
-    city: "New York",
-    hobbies: ["reading", "coding"]
+let count = 42          // Inferred as number
+let message = "Hello"   // Inferred as string
+let flag = true         // Inferred as boolean
+let items = [1, 2, 3]   // Inferred as number[]
+```
+
+---
+
+## ⚙️ **Operators**
+
+### **Arithmetic Operators**
+```utopia
+let a = 10
+let b = 3
+
+let addition = a + b        // 13
+let subtraction = a - b     // 7
+let multiplication = a * b  // 30
+let division = a / b        // 3.333...
+let modulo = a % b          // 1
+
+// Unary operators
+let positive = +a           // 10
+let negative = -a           // -10
+```
+
+### **Assignment Operators**
+```utopia
+let x = 10
+
+x += 5      // x = x + 5  (15)
+x -= 3      // x = x - 3  (12)
+x *= 2      // x = x * 2  (24)
+x /= 4      // x = x / 4  (6)
+x %= 5      // x = x % 5  (1)
+```
+
+### **Increment/Decrement Operators**
+```utopia
+let counter = 0
+
+counter++   // Post-increment: counter = 1
+counter--   // Post-decrement: counter = 0
+
+// In expressions
+let arr = [1, 2, 3]
+for (let i = 0; i < arr.length; i++) {
+    println(arr[i])
+}
+```
+
+### **Comparison Operators**
+```utopia
+let a = 5
+let b = 10
+
+let equal = (a == b)        // false
+let notEqual = (a != b)     // true
+let less = (a < b)          // true
+let greater = (a > b)       // false
+let lessEqual = (a <= b)    // true
+let greaterEqual = (a >= b) // false
+```
+
+### **Logical Operators**
+```utopia
+let x = true
+let y = false
+
+let and = x && y            // false
+let or = x || y             // true
+let not = !x                // false
+
+// Short-circuit evaluation
+let result = x && someFunction()  // someFunction() only called if x is true
+let value = y || getDefault()    // getDefault() only called if y is false
+```
+
+### **Operator Precedence** (Highest to Lowest)
+```utopia
+1. () [] .                  // Grouping, array access, member access
+2. ! + - (unary)           // Logical NOT, unary plus/minus
+3. * / %                   // Multiplication, division, modulo
+4. + -                     // Addition, subtraction
+5. < <= > >=               // Relational operators
+6. == !=                   // Equality operators
+7. &&                      // Logical AND
+8. ||                      // Logical OR
+9. = += -= *= /= %=        // Assignment operators
+```
+
+---
+
+## 🔄 **Control Flow**
+
+### **If Statements**
+```utopia
+let age = 18
+
+if (age >= 18) {
+    println("You are an adult")
 }
 
-// Accessing properties
-let name = person.name
-let age = person["age"]
+if (age >= 21) {
+    println("You can drink alcohol")
+} else {
+    println("You cannot drink alcohol")
+}
 
-// Adding properties
-person.email = "john@example.com"
-person["phone"] = "123-456-7890"
-```
-
-## Error Handling
-
-### Try-Catch Blocks
-```utopia
-try {
-    let result = divide(10, 0)
-    println("Result:", result)
-} catch error {
-    println("Error occurred:", error.message)
-} finally {
-    println("Cleanup code here")
+// Multi-branch if-else
+let score = 85
+if (score >= 90) {
+    println("Grade: A")
+} else if (score >= 80) {
+    println("Grade: B")
+} else if (score >= 70) {
+    println("Grade: C")
+} else {
+    println("Grade: F")
 }
 ```
 
-### Custom Errors
+### **While Loops**
 ```utopia
-function validateAge(age: number): void {
-    if age < 0 {
-        throw new Error("Age cannot be negative")
+let count = 0
+while (count < 5) {
+    println("Count:", count)
+    count++
+}
+
+// Infinite loop with break
+let running = true
+while (running) {
+    let input = getInput()
+    if (input == "quit") {
+        running = false
     }
-    if age > 150 {
-        throw new Error("Age seems unrealistic")
+    processInput(input)
+}
+```
+
+### **For Loops**
+```utopia
+// Traditional for loop
+for (let i = 0; i < 10; i++) {
+    println("Iteration:", i)
+}
+
+// For loop with array
+let numbers = [1, 2, 3, 4, 5]
+for (let i = 0; i < numbers.length; i++) {
+    println("Number:", numbers[i])
+}
+
+// For loop with step
+for (let i = 0; i < 100; i += 10) {
+    println("Step:", i)
+}
+
+// Nested for loops
+for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 3; col++) {
+        println("Position:", row, col)
     }
 }
 ```
 
-## Modules and Imports
+---
 
-### Importing Modules
+## 🔧 **Functions**
+
+### **Function Declaration**
 ```utopia
-// Import entire module
-import "math"
+// Basic function
+function greet() {
+    println("Hello, World!")
+}
 
-// Import specific functions
-import { sqrt, pow } from "math"
-
-// Import with alias
-import { sqrt as squareRoot } from "math"
-```
-
-### Creating Modules
-```utopia
-// math.uto
-export function add(a: number, b: number): number {
+// Function with parameters
+function add(a, b) {
     return a + b
 }
 
-export function multiply(a: number, b: number): number {
-    return a * b
+// Function with type annotations
+function multiply(x: number, y: number): number {
+    return x * y
 }
 
-export const PI: number = 3.14159
+// Function with default parameters (planned)
+function greetUser(name: string = "Guest"): string {
+    return "Hello, " + name + "!"
+}
 ```
 
-## Comments
+### **Function Calls**
+```utopia
+greet()                     // Call function with no parameters
+let sum = add(5, 3)         // Call function with parameters
+let product = multiply(4, 7) // Call function with type annotations
 
-### Single-line Comments
+// Store function in variable
+let calculator = add
+let result = calculator(10, 20)
+```
+
+### **Return Statements**
+```utopia
+function absoluteValue(x) {
+    if (x < 0) {
+        return -x
+    }
+    return x
+}
+
+// Multiple return points
+function findMax(a, b, c) {
+    if (a >= b && a >= c) return a
+    if (b >= c) return b
+    return c
+}
+
+// No return value (void function)
+function logMessage(message) {
+    println("[LOG]", message)
+    // Implicit return null
+}
+```
+
+### **Function Scope**
+```utopia
+let globalVar = "global"
+
+function outerFunction() {
+    let outerVar = "outer"
+    
+    function innerFunction() {
+        let innerVar = "inner"
+        println(globalVar)  // Can access global
+        println(outerVar)   // Can access outer
+        println(innerVar)   // Can access inner
+    }
+    
+    innerFunction()
+    // innerVar is not accessible here
+}
+
+outerFunction()
+// outerVar and innerVar are not accessible here
+```
+
+---
+
+## 📊 **Data Structures**
+
+### **Arrays**
+```utopia
+// Array creation
+let numbers = [1, 2, 3, 4, 5]
+let names = ["Alice", "Bob", "Charlie"]
+let mixed = [1, "hello", true, null]
+let empty = []
+
+// Array access
+let first = numbers[0]      // 1
+let last = numbers[4]       // 5
+numbers[1] = 10             // Modify element
+
+// Array methods (planned)
+numbers.push(6)             // Add element
+let length = numbers.length // Get length
+```
+
+### **Objects**
+```utopia
+// Object creation
+let person = {
+    name: "Alice",
+    age: 30,
+    isEmployed: true
+}
+
+let empty = {}
+
+// Object access
+let name = person.name      // "Alice"
+let age = person["age"]     // 30
+
+// Object modification
+person.age = 31
+person["isEmployed"] = false
+person.city = "New York"    // Add new property
+
+// Nested objects
+let company = {
+    name: "Tech Corp",
+    address: {
+        street: "123 Main St",
+        city: "San Francisco",
+        zip: "94105"
+    },
+    employees: [
+        { name: "Alice", role: "Developer" },
+        { name: "Bob", role: "Designer" }
+    ]
+}
+```
+
+---
+
+## 🌐 **Language Blocks**
+
+### **Language Block Syntax**
+```utopia
+@lang <language_name>
+<language_specific_code>
+```
+
+### **Supported Languages**
+```utopia
+// Production ready
+@lang python
+@lang javascript
+@lang typescript
+@lang main
+
+// Assembly targets
+@lang x86_64
+@lang llvm
+@lang wasm
+@lang cuda
+
+// Planned languages
+@lang c
+@lang cpp
+@lang rust
+@lang go
+@lang java
+```
+
+### **Language Block Examples**
+
+#### **Python Block**
+```utopia
+@lang python
+import math
+
+def calculate_circle_area(radius):
+    return math.pi * radius ** 2
+
+def process_data(data):
+    return [x * 2 for x in data if x > 0]
+
+class Calculator:
+    def __init__(self):
+        self.history = []
+    
+    def add(self, a, b):
+        result = a + b
+        self.history.append(f"{a} + {b} = {result}")
+        return result
+```
+
+#### **JavaScript Block**
+```utopia
+@lang javascript
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+    }).format(amount);
+}
+
+async function fetchUserData(userId) {
+    const response = await fetch(`/api/users/${userId}`);
+    return response.json();
+}
+
+class EventEmitter {
+    constructor() {
+        this.events = {};
+    }
+    
+    on(event, callback) {
+        if (!this.events[event]) {
+            this.events[event] = [];
+        }
+        this.events[event].push(callback);
+    }
+    
+    emit(event, data) {
+        if (this.events[event]) {
+            this.events[event].forEach(callback => callback(data));
+        }
+    }
+}
+```
+
+#### **TypeScript Block**
+```utopia
+@lang typescript
+interface User {
+    id: number;
+    name: string;
+    email: string;
+    roles: string[];
+}
+
+interface ApiResponse<T> {
+    data: T;
+    status: number;
+    message: string;
+}
+
+class UserService {
+    private users: User[] = [];
+    
+    async getUser(id: number): Promise<ApiResponse<User>> {
+        const user = this.users.find(u => u.id === id);
+        if (user) {
+            return {
+                data: user,
+                status: 200,
+                message: "User found"
+            };
+        }
+        throw new Error("User not found");
+    }
+    
+    addUser(user: User): void {
+        this.users.push(user);
+    }
+}
+```
+
+---
+
+## 🔗 **Cross-Language Calls**
+
+### **Call Syntax**
+```utopia
+<language_prefix>::<function_name>(<arguments>)
+```
+
+### **Language Prefixes**
+```utopia
+py::    // Python functions
+js::    // JavaScript functions
+ts::    // TypeScript functions
+c::     // C functions (planned)
+rs::    // Rust functions (planned)
+go::    // Go functions (planned)
+```
+
+### **Cross-Language Examples**
+
+#### **Python ↔ JavaScript Integration**
+```utopia
+@lang python
+import json
+import requests
+
+def fetch_weather_data(city):
+    response = requests.get(f"http://api.weather.com/{city}")
+    return json.loads(response.text)
+
+def analyze_temperature(data):
+    temperatures = [d['temp'] for d in data]
+    return {
+        'average': sum(temperatures) / len(temperatures),
+        'min': min(temperatures),
+        'max': max(temperatures)
+    }
+
+@lang javascript
+function formatWeatherReport(analysis) {
+    return `
+        Weather Analysis:
+        Average: ${analysis.average.toFixed(1)}°F
+        Range: ${analysis.min}°F - ${analysis.max}°F
+    `;
+}
+
+function displayNotification(message) {
+    console.log(`[NOTIFICATION] ${message}`);
+    // Could integrate with browser notification API
+}
+
+@lang main
+let city = "San Francisco"
+let weatherData = py::fetch_weather_data(city)
+let analysis = py::analyze_temperature(weatherData)
+let report = js::formatWeatherReport(analysis)
+js::displayNotification(report)
+```
+
+#### **Multi-Language Data Processing**
+```utopia
+@lang python
+import numpy as np
+import pandas as pd
+
+def load_dataset(filename):
+    return pd.read_csv(filename)
+
+def statistical_analysis(data):
+    return {
+        'mean': data.mean().to_dict(),
+        'std': data.std().to_dict(),
+        'correlation': data.corr().to_dict()
+    }
+
+@lang javascript
+function createVisualization(stats) {
+    // Integration with Chart.js or D3.js
+    return {
+        type: 'chart',
+        data: stats,
+        config: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    };
+}
+
+function generateDashboard(charts) {
+    return {
+        title: "Data Analysis Dashboard",
+        charts: charts,
+        timestamp: new Date().toISOString()
+    };
+}
+
+@lang main
+let dataset = py::load_dataset("sales_data.csv")
+let stats = py::statistical_analysis(dataset)
+let chart = js::createVisualization(stats)
+let dashboard = js::generateDashboard([chart])
+println("Dashboard created:", dashboard.title)
+```
+
+---
+
+## 💬 **Comments**
+
+### **Single-Line Comments**
 ```utopia
 // This is a single-line comment
-let x = 5 // Inline comment
+let x = 5;  // Comment at end of line
+
+// Multiple single-line comments
+// can be used for longer explanations
+// that span multiple lines
 ```
 
-### Multi-line Comments
+### **Multi-Line Comments**
 ```utopia
 /*
-This is a multi-line comment
-It can span multiple lines
-Useful for documentation
+ * This is a multi-line comment
+ * that can span multiple lines
+ * and is useful for longer explanations
+ */
+
+let y = 10;
+
+/*
+Multi-line comments can also
+be written without asterisks
+for each line
 */
 ```
 
-### Documentation Comments
+### **Documentation Comments** (Planned)
 ```utopia
 /**
  * Calculates the factorial of a number
  * @param n The number to calculate factorial for
- * @returns The factorial of n
+ * @returns The factorial result
+ * @throws Error if n is negative
  */
 function factorial(n: number): number {
-    if n <= 1 {
-        return 1
-    }
-    return n * factorial(n - 1)
+    if (n < 0) throw new Error("Negative numbers not allowed");
+    if (n <= 1) return 1;
+    return n * factorial(n - 1);
 }
 ```
 
-## Examples
+---
 
-### Complete Program Example
+## 🚀 **Advanced Features**
+
+### **Error Handling** (Planned)
 ```utopia
-// Simple calculator program
-function calculate(operation: string, a: number, b: number): number {
-    switch operation {
-        case "add":
-            return a + b
-        case "subtract":
-            return a - b
-        case "multiply":
-            return a * b
-        case "divide":
-            if b == 0 {
-                throw new Error("Division by zero")
-            }
-            return a / b
-        default:
-            throw new Error("Unknown operation")
-    }
+try {
+    let result = py::risky_operation()
+    println("Success:", result)
+} catch (error) {
+    println("Error occurred:", error.message)
+} finally {
+    println("Cleanup code runs here")
 }
 
-// Main program
-let num1: number = 10
-let num2: number = 5
-
-println("Addition:", calculate("add", num1, num2))
-println("Subtraction:", calculate("subtract", num1, num2))
-println("Multiplication:", calculate("multiply", num1, num2))
-println("Division:", calculate("divide", num1, num2))
+// Throwing errors
+function validateAge(age) {
+    if (age < 0) {
+        throw new Error("Age cannot be negative")
+    }
+    if (age > 150) {
+        throw new Error("Age seems unrealistic")
+    }
+    return true
+}
 ```
 
-### Class-like Structure (using objects)
+### **Modules and Imports** (Planned)
 ```utopia
-// Person object with methods
-let person: object = {
-    name: "John Doe",
-    age: 30,
+// math_utils.uto
+export function add(a, b) {
+    return a + b
+}
+
+export function multiply(a, b) {
+    return a * b
+}
+
+export const PI = 3.14159
+
+// main.uto
+import { add, multiply, PI } from "./math_utils.uto"
+
+let sum = add(5, 3)
+let product = multiply(4, 7)
+let circleArea = PI * 5 * 5
+```
+
+### **Classes and Objects** (Planned)
+```utopia
+class Person {
+    constructor(name, age) {
+        this.name = name
+        this.age = age
+    }
     
-    greet: function(): string {
-        return "Hello, my name is " + this.name
-    },
+    greet() {
+        return `Hello, I'm ${this.name} and I'm ${this.age} years old`
+    }
     
-    haveBirthday: function(): void {
+    haveBirthday() {
         this.age++
-        println("Happy birthday! You are now", this.age, "years old")
+        println(`Happy birthday ${this.name}! Now ${this.age} years old.`)
     }
 }
 
+let person = new Person("Alice", 25)
 println(person.greet())
 person.haveBirthday()
 ```
 
-This syntax guide covers all the essential features of the Utopia programming language. The language is designed to be intuitive and familiar to developers while providing powerful features for multi-language compilation. 
+### **Generics** (Planned)
+```utopia
+function identity<T>(arg: T): T {
+    return arg
+}
+
+let stringResult = identity<string>("hello")
+let numberResult = identity<number>(42)
+
+class Container<T> {
+    private value: T
+    
+    constructor(value: T) {
+        this.value = value
+    }
+    
+    getValue(): T {
+        return this.value
+    }
+    
+    setValue(value: T): void {
+        this.value = value
+    }
+}
+
+let stringContainer = new Container<string>("hello")
+let numberContainer = new Container<number>(42)
+```
+
+### **Async/Await** (Planned)
+```utopia
+async function fetchData(url) {
+    let response = await fetch(url)
+    let data = await response.json()
+    return data
+}
+
+async function processMultipleUrls(urls) {
+    let promises = urls.map(url => fetchData(url))
+    let results = await Promise.all(promises)
+    return results
+}
+
+// Usage
+let data = await fetchData("https://api.example.com/data")
+println("Data received:", data)
+```
+
+---
+
+## 🎯 **Best Practices**
+
+### **Naming Conventions**
+```utopia
+// Variables and functions: camelCase
+let userName = "alice"
+let userAge = 25
+function calculateTotal() { }
+
+// Constants: UPPER_SNAKE_CASE
+const MAX_RETRIES = 3
+const API_BASE_URL = "https://api.example.com"
+
+// Classes: PascalCase (planned)
+class UserManager { }
+class DatabaseConnection { }
+```
+
+### **Code Organization**
+```utopia
+// 1. Constants first
+const CONFIG = {
+    maxUsers: 100,
+    timeout: 5000
+}
+
+// 2. Helper functions
+function validateInput(input) {
+    return input && input.length > 0
+}
+
+// 3. Main logic
+function processUser(userData) {
+    if (!validateInput(userData.name)) {
+        throw new Error("Invalid name")
+    }
+    // Process user...
+}
+
+// 4. Language blocks
+@lang python
+def heavy_computation(data):
+    # CPU-intensive operations in Python
+    pass
+
+// 5. Main execution
+@lang main
+let result = py::heavy_computation(largeDataset)
+println("Processing complete")
+```
+
+### **Error Handling Patterns**
+```utopia
+// Check for null values
+function safeAccess(obj, property) {
+    if (obj == null) {
+        return null
+    }
+    return obj[property]
+}
+
+// Validate function parameters
+function divide(a, b) {
+    if (b == 0) {
+        throw new Error("Division by zero")
+    }
+    return a / b
+}
+
+// Use meaningful error messages
+function validateEmail(email) {
+    if (!email.includes("@")) {
+        throw new Error(`Invalid email format: ${email}. Must contain @ symbol.`)
+    }
+}
+```
+
+---
+
+<div align="center">
+
+**Master Utopia Syntax! 🎯**
+
+*Write once, compile everywhere with Utopia's unified syntax*
+
+[**🏠 Back to Docs**](README.md) • [**📖 Language Guide**](utopia-language-guide.md) • [**⚙️ CLI Reference**](cli-reference.md)
+
+</div> 
