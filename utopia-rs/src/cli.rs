@@ -7,6 +7,7 @@ use clap::{Parser, Subcommand, ValueEnum};
 use colored::*;
 use std::path::Path;
 use std::time::Instant;
+use std::io::Write;
 
 use crate::{
     Compiler, 
@@ -18,6 +19,8 @@ use crate::{
     parser::Parser as UtopiaParser,
     utils::{read_file, write_file},
     Result,
+    runtime::UtopiaRuntime,
+    runtime::RuntimeValue,
 };
 
 /// Utopia Multi-Language Compiler CLI
@@ -624,9 +627,69 @@ fn handle_benchmark(
     Ok(())
 }
 
-fn handle_repl(_language: String, _completion: bool) -> Result<()> {
+fn handle_repl(language: String, completion: bool) -> Result<()> {
     println!("{}", "🎮 Starting Utopia REPL...".bright_blue().bold());
-    println!("{}", "REPL mode not yet implemented. Coming soon!".bright_yellow());
+    println!("{}", "Type 'exit' or 'quit' to exit, 'help' for commands".bright_cyan());
+    println!("{}", format!("Current language context: {}", language).bright_yellow());
+    println!();
+    
+    let mut runtime = UtopiaRuntime::new();
+    let mut line_number = 1;
+    
+    loop {
+        print!("{} ", format!("uto[{}]> ", line_number).bright_green());
+        std::io::stdout().flush().unwrap();
+        
+        let mut input = String::new();
+        if std::io::stdin().read_line(&mut input).is_err() {
+            break;
+        }
+        
+        let input = input.trim();
+        
+        // Handle special commands
+        match input {
+            "exit" | "quit" => {
+                println!("{}", "👋 Goodbye!".bright_blue());
+                break;
+            }
+            "help" => {
+                println!("{}", "📚 Available commands:".bright_blue().bold());
+                println!("  exit/quit  - Exit the REPL");
+                println!("  help       - Show this help");
+                println!("  clear      - Clear the screen");
+                println!("  reset      - Reset the runtime environment");
+                println!("  <code>     - Execute Utopia code");
+                println!();
+            }
+            "clear" => {
+                print!("\x1B[2J\x1B[1;1H"); // Clear screen
+                continue;
+            }
+            "reset" => {
+                runtime = UtopiaRuntime::new();
+                println!("{}", "🔄 Runtime environment reset".bright_yellow());
+                continue;
+            }
+            "" => continue, // Empty line
+            _ => {
+                // Execute the code
+                match runtime.execute_source(input) {
+                    Ok(result) => {
+                        if result != RuntimeValue::Null {
+                            println!("{} {}", "=>".bright_cyan(), result);
+                        }
+                    }
+                    Err(e) => {
+                        eprintln!("{} {}", "❌ Error:".bright_red(), e);
+                    }
+                }
+            }
+        }
+        
+        line_number += 1;
+    }
+    
     Ok(())
 }
 
@@ -670,12 +733,40 @@ function start() {
     Ok(())
 }
 
-fn handle_run(_input: Option<String>, _args: Vec<String>, _target: String, verbose: bool) -> Result<()> {
+fn handle_run(input: Option<String>, args: Vec<String>, target: String, verbose: bool) -> Result<()> {
     if verbose {
-        println!("{}", "🚀 Running Utopia program...".bright_blue().bold());
+        println!("{}", "🚀 Running Utopia program directly...".bright_blue().bold());
     }
-    println!("{}", "Run functionality not yet implemented. Coming soon!".bright_yellow());
-    Ok(())
+    
+    let filename = input.unwrap_or_else(|| {
+        // Look for main.uto in current directory
+        if std::path::Path::new("main.uto").exists() {
+            "main.uto".to_string()
+        } else {
+            "main.uto".to_string() // Default fallback
+        }
+    });
+    
+    if !std::path::Path::new(&filename).exists() {
+        return Err(format!("File not found: {}", filename).into());
+    }
+    
+    // Create runtime and execute
+    let mut runtime = UtopiaRuntime::new();
+    
+    match runtime.execute_file(&filename) {
+        Ok(result) => {
+            if verbose {
+                println!("{} Program executed successfully!", "✅".bright_green());
+                println!("{} Return value: {}", "📤".bright_cyan(), result);
+            }
+            Ok(())
+        }
+        Err(e) => {
+            eprintln!("{} Runtime error: {}", "❌".bright_red(), e);
+            Err(e)
+        }
+    }
 }
 
 fn handle_clean(_path: String, _all: bool, verbose: bool) -> Result<()> {

@@ -47,7 +47,7 @@ pub struct FunctionInfo {
 }
 
 /// Function parameter information
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Parameter {
     pub name: String,
     pub param_type: Option<Type>,
@@ -163,7 +163,7 @@ impl AstNode for LanguageBlock {
 }
 
 /// Function definition
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Function {
     pub name: String,
     pub parameters: Vec<Parameter>,
@@ -199,7 +199,7 @@ impl AstNode for Function {
 }
 
 /// Statements in the AST
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum Statement {
     Expression {
         expression: Expression,
@@ -282,7 +282,7 @@ impl AstNode for Statement {
 }
 
 /// Expressions in the AST
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum Expression {
     Literal {
         value: LiteralValue,
@@ -369,7 +369,7 @@ impl AstNode for Expression {
 }
 
 /// Literal values
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum LiteralValue {
     Number(f64),
     String(String),
