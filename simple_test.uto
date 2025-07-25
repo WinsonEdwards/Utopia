@@ -1,3 +1,0 @@
-@lang main {
-println("Hello");
-} 
