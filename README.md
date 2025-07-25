@@ -13,8 +13,8 @@ Utopia is a Rust-based compiler that lets you write code in a unified syntax and
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/utopia.git
-cd utopia/utopia-rs
+git clone https://github.com/WinsonEdwards/Utopia.git
+cd Utopia/utopia-rs
 
 # Build the compiler
 cargo build --release
