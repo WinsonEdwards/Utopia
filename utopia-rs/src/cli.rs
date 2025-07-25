@@ -12,7 +12,7 @@ use std::io::Write;
 use crate::{
     Compiler, 
     Config, 
-    LanguageConfig,
+
     transformers::TransformerManager,
     reverse::ReverseCompiler,
     lexer::Lexer,
@@ -375,7 +375,13 @@ fn handle_compile(
     let mut lexer = Lexer::new(&source_code);
     let tokens = lexer.tokenize()?;
     let mut parser = UtopiaParser::new(tokens);
-    let program = parser.parse()?;
+    let program = match parser.parse() {
+        Ok(program) => program,
+        Err(e) => {
+            println!("DEBUG: Parser error: {}", e);
+            return Err(e);
+        }
+    };
     
     // Generate code
     let generated_code = transformer_manager.transform(&target, &program)?;

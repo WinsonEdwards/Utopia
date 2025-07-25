@@ -1,0 +1,52 @@
+@lang main {
+// Basic variable declarations
+let x = 5;
+let y = 10;
+let message = "Hello, Utopia!";
+let isActive = true;
+
+// Basic arithmetic operations
+let sum = x + y;
+let product = x * y;
+let difference = y - x;
+let quotient = y / x;
+
+// Function definition and call
+function add(a, b) {
+    return a + b;
+}
+
+let result = add(x, y);
+
+// Control flow
+if (x < y) {
+    println("x is less than y");
+} else {
+    println("x is greater than or equal to y");
+}
+
+// Loop
+let i = 0;
+while (i < 3) {
+    println("Loop iteration:", i);
+    i = i + 1;
+}
+
+// Array operations
+let numbers = [1, 2, 3, 4, 5];
+let first = numbers[0];
+
+// String operations
+let greeting = "Hello, Utopia!";
+println(greeting);
+
+// Error handling
+try {
+    let division = y / 0;
+    println("Division result:", division);
+} catch (error) {
+    println("Error occurred:", error);
+}
+
+println("Basic syntax test completed successfully!");
+} 

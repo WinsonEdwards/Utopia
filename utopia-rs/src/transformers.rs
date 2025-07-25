@@ -130,11 +130,13 @@ impl PythonTransformer {
     fn generate_statement(&self, statement: &Statement) -> Result<String> {
         match statement {
             Statement::Expression { expression, .. } => {
-                Ok(format!("{}\n", self.generate_expression(expression)?))
+                let expr_str = self.generate_expression(expression)?;
+                Ok(format!("{}\n", expr_str))
             }
             Statement::VariableDeclaration { name, value, .. } => {
                 if let Some(value) = value {
-                    Ok(format!("{} = {}\n", name, self.generate_expression(value)?))
+                    let value_str = self.generate_expression(value)?;
+                    Ok(format!("{} = {}\n", name, value_str))
                 } else {
                     Ok(format!("{} = None\n", name))
                 }
@@ -160,6 +162,60 @@ impl PythonTransformer {
                         output.push_str("    ");
                         output.push_str(&self.generate_statement(stmt)?);
                     }
+                }
+                
+                Ok(output)
+            }
+            Statement::For { init, condition, update, body, .. } => {
+                let mut output = String::new();
+                
+                // Handle initialization
+                if let Some(init_stmt) = init {
+                    output.push_str(&self.generate_statement(init_stmt)?);
+                }
+                
+                // Generate the for loop
+                output.push_str("while ");
+                if let Some(cond) = condition {
+                    output.push_str(&self.generate_expression(cond)?);
+                } else {
+                    output.push_str("True");
+                }
+                output.push_str(":\n");
+                
+                // Generate body
+                for stmt in body {
+                    output.push_str("    ");
+                    output.push_str(&self.generate_statement(stmt)?);
+                }
+                
+                // Handle update
+                if let Some(update_expr) = update {
+                    output.push_str("    ");
+                    output.push_str(&self.generate_expression(update_expr)?);
+                    output.push_str("\n");
+                }
+                
+                Ok(output)
+            }
+            Statement::FunctionDeclaration { name, parameters, return_type: _, body, .. } => {
+                let mut output = String::new();
+                
+                // Generate function definition
+                let param_names: Vec<String> = parameters.iter()
+                    .map(|p| p.name.clone())
+                    .collect();
+                output.push_str(&format!("def {}({}):\n", name, param_names.join(", ")));
+                
+                // Generate function body
+                for stmt in body {
+                    output.push_str("    ");
+                    output.push_str(&self.generate_statement(stmt)?);
+                }
+                
+                // Add default return if no explicit return
+                if !body.iter().any(|stmt| matches!(stmt, Statement::Return { .. })) {
+                    output.push_str("    return None\n");
                 }
                 
                 Ok(output)
@@ -210,7 +266,7 @@ impl PythonTransformer {
                 if callee_str == "println" {
                     Ok(format!("print({})", args_str))
                 } else {
-                    Ok(format!("{}({})", callee_str, args_str))
+                Ok(format!("{}({})", callee_str, args_str))
                 }
             }
             Expression::CrossCall { language, function, arguments, .. } => {
@@ -219,6 +275,18 @@ impl PythonTransformer {
                     .collect();
                 let args_str = args?.join(", ");
                 Ok(format!("cross_call('{}', '{}', [{}])", language, function, args_str))
+            }
+            Expression::Assignment { target, value, .. } => {
+                let target_str = self.generate_expression(target)?;
+                let value_str = self.generate_expression(value)?;
+                Ok(format!("{} = {}", target_str, value_str))
+            }
+            Expression::Postfix { operand, operator, .. } => {
+                let operand_str = self.generate_expression(operand)?;
+                match operator {
+                    PostfixOperator::Increment => Ok(format!("{} += 1", operand_str)),
+                    PostfixOperator::Decrement => Ok(format!("{} -= 1", operand_str)),
+                }
             }
             _ => Ok("None  # Unsupported expression".to_string()),
         }

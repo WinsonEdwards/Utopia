@@ -1,0 +1,15 @@
+@lang python {
+function test_func(x) {
+    return x * 2;
+}
+}
+
+@lang main {
+let result = py::test_func(5);
+println("Result:", result);
+
+for (let i = 0; i < 3; i++) {
+    let processed = py::test_func(i);
+    println("Processed:", processed);
+}
+} 

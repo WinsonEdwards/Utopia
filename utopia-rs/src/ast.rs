@@ -252,6 +252,13 @@ pub enum Statement {
         statements: Vec<Statement>,
         span: Span,
     },
+    FunctionDeclaration {
+        name: String,
+        parameters: Vec<Parameter>,
+        return_type: Option<Type>,
+        body: Vec<Statement>,
+        span: Span,
+    },
 }
 
 impl Statement {
@@ -267,6 +274,7 @@ impl Statement {
             Statement::Import { span, .. } => *span,
             Statement::Export { span, .. } => *span,
             Statement::Block { span, .. } => *span,
+            Statement::FunctionDeclaration { span, .. } => *span,
         }
     }
 }
@@ -301,6 +309,16 @@ pub enum Expression {
     Unary {
         operator: UnaryOperator,
         operand: Box<Expression>,
+        span: Span,
+    },
+    Postfix {
+        operand: Box<Expression>,
+        operator: PostfixOperator,
+        span: Span,
+    },
+    Assignment {
+        target: Box<Expression>,
+        value: Box<Expression>,
         span: Span,
     },
     Call {
@@ -354,6 +372,8 @@ impl Expression {
             Expression::Array { span, .. } => *span,
             Expression::Object { span, .. } => *span,
             Expression::Lambda { span, .. } => *span,
+            Expression::Postfix { span, .. } => *span,
+            Expression::Assignment { span, .. } => *span,
         }
     }
 }
@@ -435,6 +455,12 @@ pub enum UnaryOperator {
     Not,
     Minus,
     Plus,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum PostfixOperator {
+    Increment,
+    Decrement,
 }
 
 /// Pretty printer for the AST
@@ -570,6 +596,26 @@ impl Visitor for PrettyPrinter {
                 }
                 self.output.push_str(";\n");
             }
+            Statement::FunctionDeclaration { name, parameters, return_type, body, .. } => {
+                let params_str = parameters.iter()
+                    .map(|p| format!("{}: {:?}", p.name, p.param_type))
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                
+                let return_type_str = return_type.as_ref()
+                    .map(|t| format!(" -> {:?}", t))
+                    .unwrap_or_default();
+                
+                self.write_line(&format!("function {}({}){} {{", name, params_str, return_type_str));
+                self.indent += 1;
+                
+                for stmt in body {
+                    stmt.accept(self);
+                }
+                
+                self.indent -= 1;
+                self.write_line("}");
+            }
             // Add other statement types as needed
             _ => {
                 self.write_line(&format!("{:?}", statement));
@@ -608,6 +654,26 @@ impl Visitor for PrettyPrinter {
                     BinaryOperator::Or => self.output.push_str(" || "),
                 }
                 right.accept(self);
+            }
+            Expression::Unary { operator, operand, .. } => {
+                match operator {
+                    UnaryOperator::Not => self.output.push_str("!"),
+                    UnaryOperator::Minus => self.output.push_str("-"),
+                    UnaryOperator::Plus => self.output.push_str("+"),
+                }
+                operand.accept(self);
+            }
+            Expression::Postfix { operand, operator, .. } => {
+                operand.accept(self);
+                match operator {
+                    PostfixOperator::Increment => self.output.push_str("++"),
+                    PostfixOperator::Decrement => self.output.push_str("--"),
+                }
+            }
+            Expression::Assignment { target, value, .. } => {
+                target.accept(self);
+                self.output.push_str(" = ");
+                value.accept(self);
             }
             Expression::CrossCall { language, function, arguments, .. } => {
                 self.output.push_str(&format!("{}::{}", language, function));

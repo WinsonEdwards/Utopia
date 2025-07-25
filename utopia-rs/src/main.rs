@@ -78,6 +78,36 @@ fn main() {
         return;
     }
     
+    // Debug mode for for loop tokenization
+    if std::env::args().any(|arg| arg == "--debug-for") {
+        let input = "for (let i = 0; i < 3; i++) { println(\"test\"); }";
+        println!("Testing for loop input: '{}'", input);
+        let mut lexer = utopia::Lexer::new(input);
+        match lexer.tokenize() {
+            Ok(tokens) => {
+                for (i, token) in tokens.iter().enumerate() {
+                    println!("Token {}: {:?}", i, token);
+                }
+            }
+            Err(e) => println!("  Error: {}", e),
+        }
+        return;
+    }
+    
+    // Debug mode for full compilation
+    if std::env::args().any(|arg| arg == "--debug-compile") {
+        let input = "debug_for_loop.uto";
+        println!("Testing full compilation of: {}", input);
+        match utopia::cli::run_cli() {
+            Ok(_) => println!("Compilation successful"),
+            Err(e) => {
+                println!("Compilation failed with error: {}", e);
+                println!("Full error details: {:?}", e);
+            }
+        }
+        return;
+    }
+    
     // Run normal CLI
     if let Err(e) = utopia::cli::run_cli() {
         eprintln!("{}", format!("Error: {}", e).bright_red());

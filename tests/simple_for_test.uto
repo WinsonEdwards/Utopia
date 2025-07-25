@@ -1,0 +1,5 @@
+@lang main {
+for (let i = 0; i < 3; i++) {
+    println("Loop iteration:", i);
+}
+} 

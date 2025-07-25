@@ -549,7 +549,7 @@ mod tests {
     fn test_python_to_utopia() {
         let transformer = PythonToUtoTransformer::new();
         let python_code = "def add(x, y):\n    return x + y\n";
-        let result = transformer.python_to_utopia(python_code);
+        let result = transformer.parse_source(python_code);
         assert!(result.is_ok());
     }
 

@@ -51,6 +51,8 @@ pub enum TokenKind {
     And,                   // &&
     Or,                    // ||
     Not,                   // !
+    PlusPlus,              // ++
+    MinusMinus,            // --
     
     // Delimiters
     LeftParen,             // (
@@ -112,6 +114,8 @@ impl fmt::Display for TokenKind {
             TokenKind::And => write!(f, "&&"),
             TokenKind::Or => write!(f, "||"),
             TokenKind::Not => write!(f, "!"),
+            TokenKind::PlusPlus => write!(f, "++"),
+            TokenKind::MinusMinus => write!(f, "--"),
             TokenKind::LeftParen => write!(f, "("),
             TokenKind::RightParen => write!(f, ")"),
             TokenKind::LeftBrace => write!(f, "{{"),
@@ -246,6 +250,20 @@ impl<'a> Lexer<'a> {
                     self.advance(); // consume '-'
                     self.advance(); // consume '>'
                     self.add_token(TokenKind::Arrow, start, "->".to_string());
+                }
+                
+                '+' if self.peek_ahead() == Some('+') => {
+                    let start = self.current_span();
+                    self.advance(); // consume '+'
+                    self.advance(); // consume '+'
+                    self.add_token(TokenKind::PlusPlus, start, "++".to_string());
+                }
+                
+                '-' if self.peek_ahead() == Some('-') => {
+                    let start = self.current_span();
+                    self.advance(); // consume '-'
+                    self.advance(); // consume '-'
+                    self.add_token(TokenKind::MinusMinus, start, "--".to_string());
                 }
                 
                 // Single-character tokens

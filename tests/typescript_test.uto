@@ -1,0 +1,29 @@
+@lang typescript {
+function calculateSum(a, b) {
+    return a + b;
+}
+
+function formatMessage(name, value) {
+    return "Hello " + name + ", your value is: " + value;
+}
+
+function processArray(items) {
+    return items;
+}
+}
+
+@lang main {
+println("=== TypeScript Support Test ===");
+
+let result = typescript::calculateSum(5, 3);
+println("Sum result:", result);
+
+let message = typescript::formatMessage("Alice", 42);
+println("Formatted message:", message);
+
+let numbers = [1, 2, 3, 4, 5];
+let processed = typescript::processArray(numbers);
+println("Processed array:", processed);
+
+println("TypeScript test completed successfully!");
+} 

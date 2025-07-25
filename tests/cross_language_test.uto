@@ -1,0 +1,84 @@
+@lang python {
+function calculate_fibonacci(n) {
+    if (n <= 1) {
+        return n;
+    }
+    return calculate_fibonacci(n - 1) + calculate_fibonacci(n - 2);
+}
+
+function process_number(x) {
+    return x * 2;
+}
+
+function create_config() {
+    return "Utopia v1.0.0";
+}
+}
+
+@lang javascript {
+function format_message(name, value) {
+    return "Hello " + name + ", your value is: " + value;
+}
+
+function validate_input(input) {
+    return input.length > 0;
+}
+
+function create_web_component(element_id, content) {
+    return "Creating " + element_id + " with content: " + content;
+}
+}
+
+@lang c {
+function fast_calculation(a, b) {
+    return a * b + a + b;
+}
+
+function memory_efficient_process(data, size) {
+    return size * 2;
+}
+}
+
+@lang main {
+println("=== Cross-Language Integration Test ===");
+
+// Test Python functions
+let fib_result = py::calculate_fibonacci(8);
+println("Fibonacci(8) =", fib_result);
+
+let doubled = py::process_number(5);
+println("Doubled number =", doubled);
+
+let config = py::create_config();
+println("Project config:", config);
+
+// Test JavaScript functions
+let message = javascript::format_message("Alice", 42);
+println("Formatted message:", message);
+
+let is_valid = javascript::validate_input("test");
+println("Input validation:", is_valid);
+
+let component = javascript::create_web_component("button", "Click me");
+println("Web component:", component);
+
+// Test C functions
+let calc_result = c::fast_calculation(5, 3);
+println("Fast calculation result:", calc_result);
+
+let mem_result = c::memory_efficient_process(10, 3);
+println("Memory efficient result:", mem_result);
+
+// Test complex cross-language workflow
+let total = 0;
+
+for (let i = 0; i < 5; i++) {
+    let processed = py::process_number(i);
+    total = total + c::fast_calculation(processed, i);
+}
+
+let final_message = javascript::format_message("Utopia", total);
+println("Final result:", final_message);
+
+println("Cross-language test completed successfully!");
+} 

@@ -10,13 +10,7 @@ use crate::{
     Result, 
     Span
 };
-use nom::{
-    branch::alt,
-    combinator::{map, opt, value},
-    multi::{many0, separated_list0, separated_list1},
-    sequence::{delimited, pair, preceded, terminated, tuple},
-    IResult,
-};
+// Note: nom imports removed as they're not currently used in the parser
 use std::collections::HashMap;
 
 /// Parser state
@@ -250,14 +244,33 @@ impl Parser {
         let start_span = self.current_token().span;
         
         match &self.current_token().kind {
-            TokenKind::Let | TokenKind::Const => self.parse_variable_declaration(),
-            TokenKind::If => self.parse_if_statement(),
-            TokenKind::While => self.parse_while_statement(),
-            TokenKind::For => self.parse_for_statement(),
-            TokenKind::Return => self.parse_return_statement(),
-            TokenKind::Import => self.parse_import_statement(),
-            TokenKind::Export => self.parse_export_statement(),
-            TokenKind::LeftBrace => self.parse_block_statement(),
+            TokenKind::Let | TokenKind::Const => {
+                self.parse_variable_declaration()
+            }
+            TokenKind::If => {
+                self.parse_if_statement()
+            }
+            TokenKind::While => {
+                self.parse_while_statement()
+            }
+            TokenKind::For => {
+                self.parse_for_statement()
+            }
+            TokenKind::Return => {
+                self.parse_return_statement()
+            }
+            TokenKind::Import => {
+                self.parse_import_statement()
+            }
+            TokenKind::Export => {
+                self.parse_export_statement()
+            }
+            TokenKind::LeftBrace => {
+                self.parse_block_statement()
+            }
+            TokenKind::Function => {
+                self.parse_function_statement()
+            }
             _ => {
                 // Expression statement
                 let expression = self.parse_expression()?;
@@ -293,6 +306,10 @@ impl Parser {
     }
 
     fn parse_variable_declaration(&mut self) -> Result<Statement> {
+        self.parse_variable_declaration_internal(true)
+    }
+    
+    fn parse_variable_declaration_internal(&mut self, consume_semicolon: bool) -> Result<Statement> {
         let start_span = self.current_token().span;
         
         let is_const = match &self.current_token().kind {
@@ -332,8 +349,8 @@ impl Parser {
             None
         };
         
-        // Consume optional semicolon
-        if self.check(&TokenKind::Semicolon) {
+        // Consume optional semicolon only if requested
+        if consume_semicolon && self.check(&TokenKind::Semicolon) {
             self.advance();
         }
         
@@ -398,14 +415,25 @@ impl Parser {
         self.consume(&TokenKind::For, "Expected 'for'")?;
         self.consume(&TokenKind::LeftParen, "Expected '('")?;
         
-        // Initialize
-        let init = if self.check(&TokenKind::Semicolon) {
+        // Initialize - parse variable declaration or expression
+        let init = if self.check(&TokenKind::Let) || self.check(&TokenKind::Const) {
+            Some(Box::new(self.parse_variable_declaration_internal(false)?))
+        } else if self.check(&TokenKind::Semicolon) {
             None
         } else {
-            Some(Box::new(self.parse_statement()?))
+            Some(Box::new(Statement::Expression {
+                expression: self.parse_expression()?,
+                span: self.current_token().span,
+            }))
         };
         
-        self.consume(&TokenKind::Semicolon, "Expected ';'")?;
+        // If we have an init statement, it should end with semicolon
+        if init.is_some() {
+            if !self.check(&TokenKind::Semicolon) {
+                return Err("Expected ';' after for loop initialization".into());
+            }
+            self.advance(); // consume the semicolon
+        }
         
         // Condition
         let condition = if self.check(&TokenKind::Semicolon) {
@@ -414,7 +442,9 @@ impl Parser {
             Some(self.parse_expression()?)
         };
         
-        self.consume(&TokenKind::Semicolon, "Expected ';'")?;
+        if self.check(&TokenKind::Semicolon) {
+            self.advance();
+        }
         
         // Update
         let update = if self.check(&TokenKind::RightParen) {
@@ -538,8 +568,94 @@ impl Parser {
         Ok(statements)
     }
 
+    fn parse_function_statement(&mut self) -> Result<Statement> {
+        let start_span = self.current_token().span;
+        
+        // Consume 'function'
+        self.consume(&TokenKind::Function, "Expected 'function'")?;
+        
+        // Get function name
+        let name = if let TokenKind::Identifier(name) = &self.current_token().kind {
+            let func_name = name.clone();
+            self.advance();
+            func_name
+        } else {
+            return Err("Expected function name".into());
+        };
+        
+        // Parse parameters
+        self.consume(&TokenKind::LeftParen, "Expected '('")?;
+        
+        let mut parameters = Vec::new();
+        if !self.check(&TokenKind::RightParen) {
+            loop {
+                let param = self.parse_parameter()?;
+                parameters.push(param);
+                
+                if self.check(&TokenKind::Comma) {
+                    self.advance();
+                } else {
+                    break;
+                }
+            }
+        }
+        
+        self.consume(&TokenKind::RightParen, "Expected ')'")?;
+        
+        // Optional return type
+        let mut return_type = None;
+        if self.check(&TokenKind::Arrow) {
+            self.advance();
+            return_type = Some(self.parse_type()?);
+        }
+        
+        // Parse function body
+        self.consume(&TokenKind::LeftBrace, "Expected '{'")?;
+        
+        let mut body = Vec::new();
+        while !self.check(&TokenKind::RightBrace) && !self.is_at_end() {
+            // Skip newlines
+            if self.check(&TokenKind::Newline) {
+                self.advance();
+                continue;
+            }
+            
+            let statement = self.parse_statement()?;
+            body.push(statement);
+        }
+        
+        self.consume(&TokenKind::RightBrace, "Expected '}'")?;
+        
+        Ok(Statement::FunctionDeclaration {
+            name,
+            parameters,
+            return_type,
+            body,
+            span: start_span,
+        })
+    }
+
     fn parse_expression(&mut self) -> Result<Expression> {
-        self.parse_logical_or()
+        self.parse_assignment()
+    }
+    
+    fn parse_assignment(&mut self) -> Result<Expression> {
+        let expr = self.parse_logical_or()?;
+        
+        if self.check(&TokenKind::Equal) {
+            let start = expr.span().start;
+            self.advance();
+            let value = self.parse_assignment()?;
+            let span = Span::new(start, value.span().end, expr.span().line, expr.span().column);
+            
+            Ok(Expression::Assignment {
+                target: Box::new(expr),
+                value: Box::new(value),
+                span,
+            })
+        } else {
+            Ok(expr)
+        }
     }
 
     fn parse_logical_or(&mut self) -> Result<Expression> {
@@ -710,7 +826,7 @@ impl Parser {
     }
 
     fn parse_call(&mut self) -> Result<Expression> {
-        let mut expr = self.parse_primary()?;
+        let mut expr = self.parse_postfix()?;
         
         loop {
             if self.check(&TokenKind::LeftParen) {
@@ -930,6 +1046,30 @@ impl Parser {
             }
             _ => Err(format!("Unexpected token: {:?}", token.kind).into()),
         }
+    }
+    
+    fn parse_postfix(&mut self) -> Result<Expression> {
+        let mut expr = self.parse_primary()?;
+        
+        // Handle postfix operators
+        while matches!(self.current_token().kind, TokenKind::PlusPlus | TokenKind::MinusMinus) {
+            let operator = match self.current_token().kind {
+                TokenKind::PlusPlus => PostfixOperator::Increment,
+                TokenKind::MinusMinus => PostfixOperator::Decrement,
+                _ => unreachable!(),
+            };
+            
+            let span = Span::new(expr.span().start, self.current_token().span.end, expr.span().line, expr.span().column);
+            self.advance(); // consume the operator
+            
+            expr = Expression::Postfix {
+                operand: Box::new(expr),
+                operator,
+                span,
+            };
+        }
+        
+        Ok(expr)
     }
 
     // Helper methods

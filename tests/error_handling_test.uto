@@ -1,0 +1,115 @@
+@lang main {
+println("=== Error Handling Test ===");
+
+// Test 1: Division by zero
+try {
+    let result = 10 / 0;
+    println("Division result:", result);
+} catch (error) {
+    println("Caught division by zero error:", error);
+}
+
+// Test 2: Array index out of bounds
+try {
+    let arr = [1, 2, 3];
+    let value = arr[10];
+    println("Array value:", value);
+} catch (error) {
+    println("Caught array index error:", error);
+}
+
+// Test 3: Undefined variable access
+try {
+    let value = undefined_variable;
+    println("Value:", value);
+} catch (error) {
+    println("Caught undefined variable error:", error);
+}
+
+// Test 4: Function call with wrong arguments
+try {
+    function test_function(a, b) {
+        return a + b;
+    }
+    let result = test_function(5); // Missing second argument
+    println("Function result:", result);
+} catch (error) {
+    println("Caught function argument error:", error);
+}
+
+// Test 5: Type mismatch
+try {
+    let number = 42;
+    let string = "hello";
+    let result = number + string;
+    println("Type mismatch result:", result);
+} catch (error) {
+    println("Caught type mismatch error:", error);
+}
+
+// Test 6: Nested try-catch
+try {
+    try {
+        let result = 1 / 0;
+        println("Inner result:", result);
+    } catch (inner_error) {
+        println("Inner error caught:", inner_error);
+        throw "Outer error";
+    }
+} catch (outer_error) {
+    println("Outer error caught:", outer_error);
+}
+
+// Test 7: Finally block
+try {
+    println("Executing try block");
+    let result = 10 / 2;
+    println("Result:", result);
+} catch (error) {
+    println("Error caught:", error);
+} finally {
+    println("Finally block executed");
+}
+
+// Test 8: Custom error throwing
+try {
+    function validate_age(age) {
+        if (age < 0) {
+            throw "Age cannot be negative";
+        }
+        if (age > 150) {
+            throw "Age seems unrealistic";
+        }
+        return "Valid age: " + age;
+    }
+    
+    let result1 = validate_age(-5);
+    println(result1);
+} catch (error) {
+    println("Custom error caught:", error);
+}
+
+try {
+    let result2 = validate_age(200);
+    println(result2);
+} catch (error) {
+    println("Custom error caught:", error);
+}
+
+// Test 9: Error recovery
+let x = 5;
+let y = 10;
+
+try {
+    let result = x / 0;
+    println("This won't execute");
+} catch (error) {
+    println("Error occurred, but continuing...");
+}
+
+// Should still work after error
+let sum = x + y;
+println("Sum after error:", sum);
+
+println("Error handling test completed!");
+} 

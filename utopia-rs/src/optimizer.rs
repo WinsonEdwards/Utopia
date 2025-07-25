@@ -5,7 +5,7 @@
 //! algebraic simplifications, memory optimizations, and vectorization.
 
 use std::collections::{HashMap, HashSet};
-use std::sync::{Arc, Mutex};
+// Note: Arc and Mutex imports removed as they're not currently used
 use std::time::Instant;
 
 use crate::{ast::*, types::Type, Result};

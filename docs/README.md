@@ -8,6 +8,7 @@ This directory contains documentation for the Utopia multi-language compiler.
 - [Language Reference](language-reference.md) - Quick reference and overview
 - [CLI Reference](cli-reference.md) - Command-line interface usage
 - [Examples](examples.md) - Code examples and tutorials
+- [Testing Guide](testing-guide.md) - Comprehensive testing and debugging procedures
 
 ## Getting Started
 
@@ -15,6 +16,27 @@ This directory contains documentation for the Utopia multi-language compiler.
 2. Check out [Examples](examples.md) for practical code samples
 3. Use the [CLI Reference](cli-reference.md) for command-line usage
 4. Refer to [Language Reference](language-reference.md) for quick syntax lookup
+5. Use the [Testing Guide](testing-guide.md) for development and debugging
+
+## Quick Testing
+
+Run the quick test suite to verify your installation:
+
+```bash
+./scripts/quick_test.sh
+```
+
+For comprehensive testing:
+
+```bash
+./scripts/run_tests.sh
+```
+
+For debugging issues:
+
+```bash
+./scripts/debug.sh
+```
 
 ## Contributing
 
