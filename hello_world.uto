@@ -1,0 +1,12 @@
+@lang main {
+    println("Hello, World!");
+    println("Welcome to Utopia!");
+    
+    let name = "Utopia User";
+    println("Hello,", name);
+    
+    let x = 5;
+    let y = 3;
+    let sum = x + y;
+    println("Sum of", x, "and", y, "is", sum);
+} 

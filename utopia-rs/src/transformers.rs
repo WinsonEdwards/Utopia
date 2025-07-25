@@ -36,6 +36,8 @@ impl Transformer for PythonTransformer {
         output.push_str("import json\n");
         output.push_str("from typing import Any, List, Dict, Optional, Union\n\n");
         
+        // No need for println function - we'll use print directly
+        
         // Process language blocks
         for block in &program.language_blocks {
             if block.language == "python" || block.language == "main" {
@@ -203,7 +205,13 @@ impl PythonTransformer {
                     .map(|arg| self.generate_expression(arg))
                     .collect();
                 let args_str = args?.join(", ");
-                Ok(format!("{}({})", callee_str, args_str))
+                
+                // Convert println to print for Python
+                if callee_str == "println" {
+                    Ok(format!("print({})", args_str))
+                } else {
+                    Ok(format!("{}({})", callee_str, args_str))
+                }
             }
             Expression::CrossCall { language, function, arguments, .. } => {
                 let args: Result<Vec<String>> = arguments.iter()
