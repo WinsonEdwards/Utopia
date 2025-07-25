@@ -73,6 +73,7 @@ utopia repl
 - [CLI Reference](docs/cli-reference.md)
 - [Examples](docs/examples.md)
 - [Performance Guide](docs/performance.md)
+- [utopia language guide](docs/utopia-language-guide.md)
 
 ## Contributing
 
