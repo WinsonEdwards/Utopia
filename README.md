@@ -69,11 +69,11 @@ utopia repl
 ```
 
 ## Documentation
-- [Language Reference](docs/language-reference.md)
-- [CLI Reference](docs/cli-reference.md)
-- [Examples](docs/examples.md)
-- [Performance Guide](docs/performance.md)
-- [utopia language guide](docs/utopia-language-guide.md)
+- [Utopia Syntax Guide](docs/utopia-syntax.md) - Complete language syntax and features
+- [Language Reference](docs/language-reference.md) - Quick reference
+- [CLI Reference](docs/cli-reference.md) - Command-line usage
+- [Examples](docs/examples.md) - Code examples
+- [Performance Guide](docs/performance.md) - Performance details
 
 ## Contributing
 
