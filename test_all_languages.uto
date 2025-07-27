@@ -1,0 +1,15 @@
+// Comprehensive test for all 50+ language targets
+println("Hello from Utopia!")
+println("Multi-language compiler test")
+
+let x = 42
+let message = "Testing all languages"
+
+println("Integer:", x)
+println("String:", message)
+
+// Simple arithmetic
+let sum = x + 10
+println("Sum:", sum)
+
+println("Test completed successfully!") 

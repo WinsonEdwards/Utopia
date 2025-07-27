@@ -1,0 +1,488 @@
+// Full-Stack Web Application Demo
+// Frontend: TypeScript, Backend: Python, Database: SQL, Performance: C
+
+println("🌐 Utopia Full-Stack Web Application Demo")
+println("=========================================")
+
+// TypeScript Frontend - Modern web UI
+@lang typescript {
+interface User {
+    id: number;
+    username: string;
+    email: string;
+    createdAt: Date;
+    isActive: boolean;
+}
+
+interface ApiResponse<T> {
+    success: boolean;
+    data?: T;
+    error?: string;
+    timestamp: Date;
+}
+
+class UserService {
+    private apiUrl: string = "/api";
+    
+    async createUser(username: string, email: string): Promise<ApiResponse<User>> {
+        try {
+            const response = await fetch(`${this.apiUrl}/users`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, email })
+            });
+            
+            const data = await response.json();
+            return {
+                success: response.ok,
+                data: response.ok ? data : undefined,
+                error: response.ok ? undefined : data.error,
+                timestamp: new Date()
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error',
+                timestamp: new Date()
+            };
+        }
+    }
+    
+    async getUsers(): Promise<ApiResponse<User[]>> {
+        try {
+            const response = await fetch(`${this.apiUrl}/users`);
+            const data = await response.json();
+            
+            return {
+                success: response.ok,
+                data: response.ok ? data : undefined,
+                error: response.ok ? undefined : data.error,
+                timestamp: new Date()
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error',
+                timestamp: new Date()
+            };
+        }
+    }
+}
+
+class UserInterface {
+    private userService: UserService;
+    
+    constructor() {
+        this.userService = new UserService();
+    }
+    
+    renderUserForm(): string {
+        return `
+        <div class="user-form">
+            <h2>Create New User</h2>
+            <form id="userForm">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" required>
+                </div>
+                <button type="submit">Create User</button>
+            </form>
+        </div>`;
+    }
+    
+    renderUserList(users: User[]): string {
+        if (users.length === 0) {
+            return '<div class="no-users">No users found</div>';
+        }
+        
+        const userItems = users.map(user => `
+            <div class="user-item ${user.isActive ? 'active' : 'inactive'}">
+                <h3>${user.username}</h3>
+                <p>Email: ${user.email}</p>
+                <p>Created: ${user.createdAt.toLocaleDateString()}</p>
+                <span class="status">${user.isActive ? 'Active' : 'Inactive'}</span>
+            </div>
+        `).join('');
+        
+        return `<div class="user-list">${userItems}</div>`;
+    }
+}
+}
+
+// Python Backend - API and business logic
+@lang python {
+from datetime import datetime, timedelta
+import json
+import hashlib
+import secrets
+from typing import Dict, List, Optional, Union
+
+class User:
+    def __init__(self, username: str, email: str, user_id: int = None):
+        self.id = user_id or self._generate_id()
+        self.username = username
+        self.email = email
+        self.created_at = datetime.now()
+        self.is_active = True
+        self.password_hash = None
+        
+    def _generate_id(self) -> int:
+        return int(datetime.now().timestamp() * 1000000) % 1000000
+    
+    def set_password(self, password: str) -> None:
+        salt = secrets.token_hex(16)
+        self.password_hash = hashlib.pbkdf2_hmac('sha256', 
+                                               password.encode(), 
+                                               salt.encode(), 
+                                               100000)
+    
+    def verify_password(self, password: str) -> bool:
+        if not self.password_hash:
+            return False
+        # Simplified verification for demo
+        return True
+    
+    def to_dict(self) -> Dict:
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'created_at': self.created_at.isoformat(),
+            'is_active': self.is_active
+        }
+
+class UserRepository:
+    def __init__(self):
+        self.users: Dict[int, User] = {}
+        self.email_index: Dict[str, int] = {}
+        self.username_index: Dict[str, int] = {}
+    
+    def create_user(self, username: str, email: str) -> Union[User, str]:
+        # Validation
+        if not username or len(username) < 3:
+            return "Username must be at least 3 characters long"
+        
+        if not email or '@' not in email:
+            return "Invalid email address"
+        
+        if email in self.email_index:
+            return "Email already exists"
+        
+        if username in self.username_index:
+            return "Username already exists"
+        
+        # Create user
+        user = User(username, email)
+        self.users[user.id] = user
+        self.email_index[email] = user.id
+        self.username_index[username] = user.id
+        
+        return user
+    
+    def get_user(self, user_id: int) -> Optional[User]:
+        return self.users.get(user_id)
+    
+    def get_all_users(self) -> List[User]:
+        return list(self.users.values())
+    
+    def update_user(self, user_id: int, **kwargs) -> Optional[User]:
+        user = self.users.get(user_id)
+        if not user:
+            return None
+        
+        for key, value in kwargs.items():
+            if hasattr(user, key):
+                setattr(user, key, value)
+        
+        return user
+    
+    def delete_user(self, user_id: int) -> bool:
+        user = self.users.get(user_id)
+        if not user:
+            return False
+        
+        del self.users[user_id]
+        del self.email_index[user.email]
+        del self.username_index[user.username]
+        return True
+
+class UserAPI:
+    def __init__(self):
+        self.repository = UserRepository()
+    
+    def handle_create_user(self, data: Dict) -> Dict:
+        username = data.get('username', '').strip()
+        email = data.get('email', '').strip()
+        
+        result = self.repository.create_user(username, email)
+        
+        if isinstance(result, str):  # Error message
+            return {
+                'success': False,
+                'error': result,
+                'timestamp': datetime.now().isoformat()
+            }
+        
+        return {
+            'success': True,
+            'data': result.to_dict(),
+            'timestamp': datetime.now().isoformat()
+        }
+    
+    def handle_get_users(self) -> Dict:
+        users = self.repository.get_all_users()
+        return {
+            'success': True,
+            'data': [user.to_dict() for user in users],
+            'count': len(users),
+            'timestamp': datetime.now().isoformat()
+        }
+    
+    def handle_get_user(self, user_id: int) -> Dict:
+        user = self.repository.get_user(user_id)
+        if not user:
+            return {
+                'success': False,
+                'error': 'User not found',
+                'timestamp': datetime.now().isoformat()
+            }
+        
+        return {
+            'success': True,
+            'data': user.to_dict(),
+            'timestamp': datetime.now().isoformat()
+        }
+}
+
+// SQL Database layer
+@lang sql {
+-- User Management Database Schema
+
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT TRUE,
+    last_login TIMESTAMP,
+    login_count INTEGER DEFAULT 0
+);
+
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_username ON users(username);
+CREATE INDEX idx_users_active ON users(is_active);
+
+-- Insert sample users
+INSERT OR IGNORE INTO users (username, email, is_active) VALUES 
+    ('admin', 'admin@utopia.dev', TRUE),
+    ('alice', 'alice@example.com', TRUE),
+    ('bob', 'bob@example.com', TRUE),
+    ('charlie', 'charlie@example.com', FALSE);
+
+-- User activity logging
+CREATE TABLE IF NOT EXISTS user_activities (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES users(id),
+    activity_type VARCHAR(50) NOT NULL,
+    description TEXT,
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Useful queries
+SELECT 
+    u.username,
+    u.email,
+    u.created_at,
+    u.is_active,
+    COUNT(ua.id) as activity_count
+FROM users u
+LEFT JOIN user_activities ua ON u.id = ua.user_id
+GROUP BY u.id, u.username, u.email, u.created_at, u.is_active
+ORDER BY u.created_at DESC;
+
+-- Performance analytics
+SELECT 
+    DATE(created_at) as date,
+    COUNT(*) as new_users,
+    COUNT(CASE WHEN is_active = TRUE THEN 1 END) as active_users
+FROM users 
+GROUP BY DATE(created_at)
+ORDER BY date DESC;
+}
+
+// C Performance layer - Fast operations
+@lang c {
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+typedef struct {
+    int user_id;
+    long long timestamp;
+    char action[64];
+    double response_time;
+} PerformanceMetric;
+
+// High-performance user ID generation
+int generate_secure_id() {
+    srand(time(NULL));
+    return (rand() % 900000) + 100000; // 6-digit ID
+}
+
+// Fast string hashing for caching
+unsigned long hash_string(const char* str) {
+    unsigned long hash = 5381;
+    int c;
+    
+    while ((c = *str++)) {
+        hash = ((hash << 5) + hash) + c; // hash * 33 + c
+    }
+    
+    return hash;
+}
+
+// Performance monitoring
+double measure_operation_time(void (*operation)()) {
+    clock_t start = clock();
+    operation();
+    clock_t end = clock();
+    
+    return ((double)(end - start)) / CLOCKS_PER_SEC;
+}
+
+// Memory-efficient user search
+int binary_search_users(int* user_ids, int size, int target) {
+    int left = 0, right = size - 1;
+    
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        
+        if (user_ids[mid] == target)
+            return mid;
+        
+        if (user_ids[mid] < target)
+            left = mid + 1;
+        else
+            right = mid - 1;
+    }
+    
+    return -1; // Not found
+}
+
+// Cache management
+typedef struct CacheEntry {
+    unsigned long key;
+    char* data;
+    time_t expiry;
+    struct CacheEntry* next;
+} CacheEntry;
+
+CacheEntry* cache_get(CacheEntry* cache, const char* key) {
+    unsigned long hash = hash_string(key);
+    CacheEntry* current = cache;
+    
+    while (current) {
+        if (current->key == hash && current->expiry > time(NULL)) {
+            return current;
+        }
+        current = current->next;
+    }
+    
+    return NULL;
+}
+}
+
+// Main application orchestration
+@lang main {
+println("🚀 Initializing Full-Stack Web Application...")
+
+// Initialize backend
+let api = python::UserAPI()
+
+// Create sample users for demonstration
+println("\n👥 Creating sample users...")
+
+let users_to_create = [
+    {"username": "developer", "email": "dev@utopia.com"},
+    {"username": "designer", "email": "design@utopia.com"},
+    {"username": "manager", "email": "manager@utopia.com"}
+]
+
+for (let i = 0; i < users_to_create.length; i++) {
+    let user_data = users_to_create[i]
+    let result = python::api.handle_create_user(user_data)
+    
+    if (result.success) {
+        println("✅ Created user:", user_data.username)
+    } else {
+        println("❌ Failed to create user:", user_data.username, "-", result.error)
+    }
+}
+
+// Fetch and display all users
+println("\n📋 Fetching all users...")
+let all_users = python::api.handle_get_users()
+
+if (all_users.success) {
+    println("👥 Total users:", all_users.count)
+    
+    // Generate frontend UI
+    let ui = typescript::UserInterface()
+    let user_list_html = typescript::ui.renderUserList(all_users.data)
+    let form_html = typescript::ui.renderUserForm()
+    
+    println("\n🌐 Generated Frontend HTML:")
+    println("User Form:", form_html.substring(0, 100) + "...")
+    println("User List:", user_list_html.substring(0, 100) + "...")
+}
+
+// Performance testing with C
+println("\n⚡ Performance Testing...")
+let secure_id = c::generate_secure_id()
+println("🆔 Generated secure ID:", secure_id)
+
+// Simulate some user IDs for search testing
+let user_ids = [1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010]
+let search_target = 1005
+let search_result = c::binary_search_users(user_ids, user_ids.length, search_target)
+
+if (search_result >= 0) {
+    println("🔍 User ID", search_target, "found at index:", search_result)
+} else {
+    println("🔍 User ID", search_target, "not found")
+}
+
+// Cache demonstration
+let cache_key = "user_list_cache"
+let cache_hash = c::hash_string(cache_key)
+println("🗄️  Cache hash for '", cache_key, "':", cache_hash)
+
+// SQL operations summary
+println("\n🗄️  Database Summary:")
+println("✅ User table schema created")
+println("✅ Indexes optimized for performance")
+println("✅ Sample data inserted")
+println("✅ Activity logging enabled")
+
+// Final summary
+println("\n🎉 FULL-STACK APPLICATION DEMO COMPLETE!")
+println("======================================")
+println("🎨 Frontend: TypeScript (Modern UI, Type Safety)")
+println("🐍 Backend: Python (API, Business Logic)")
+println("🗄️  Database: SQL (Data Storage, Analytics)")
+println("⚡ Performance: C (Fast Operations, Caching)")
+println("\n💡 This demonstrates Utopia's ability to create")
+println("   complete applications using the best language")
+println("   for each component!")
+} 

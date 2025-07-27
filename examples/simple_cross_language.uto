@@ -1,0 +1,120 @@
+// Simple Cross-Language Integration Demo
+// Python + JavaScript + C working together
+
+println("🌟 Utopia Cross-Language Demo")
+println("============================")
+
+// Python block for data processing
+@lang python {
+def process_numbers(data):
+    total = sum(data)
+    average = total / len(data) if data else 0
+    maximum = max(data) if data else 0
+    minimum = min(data) if data else 0
+    
+    return {
+        'total': total,
+        'average': average,
+        'max': maximum,
+        'min': minimum,
+        'count': len(data)
+    }
+
+def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+}
+
+// JavaScript block for formatting
+@lang javascript {
+function formatReport(stats) {
+    return `Data Analysis Report:
+- Count: ${stats.count} numbers
+- Total: ${stats.total}
+- Average: ${stats.average.toFixed(2)}
+- Range: ${stats.min} to ${stats.max}`;
+}
+
+function createChart(data) {
+    let chart = "Simple Bar Chart:\n";
+    let max = Math.max(...data);
+    
+    for (let i = 0; i < data.length; i++) {
+        let barLength = Math.round((data[i] / max) * 20);
+        let bar = '*'.repeat(barLength);
+        chart += `${i+1}: ${bar} (${data[i]})\n`;
+    }
+    
+    return chart;
+}
+}
+
+// C block for fast computations
+@lang c {
+double fast_square(double x) {
+    return x * x;
+}
+
+int fast_factorial(int n) {
+    if (n <= 1) return 1;
+    return n * fast_factorial(n - 1);
+}
+
+double fast_power(double base, int exp) {
+    if (exp == 0) return 1;
+    if (exp == 1) return base;
+    
+    double half = fast_power(base, exp / 2);
+    return (exp % 2 == 0) ? half * half : base * half * half;
+}
+}
+
+// Main program
+@lang main {
+println("🚀 Starting cross-language processing...")
+
+// Test data
+let numbers = [10, 25, 15, 30, 20, 35, 5, 40]
+println("📊 Input data:", numbers)
+
+// Step 1: Python analysis
+println("\n🐍 Python Analysis:")
+let stats = python::process_numbers(numbers)
+println("Statistics computed:")
+println("- Total:", stats.total)
+println("- Average:", stats.average)
+println("- Min:", stats.min)
+println("- Max:", stats.max)
+
+// Fibonacci demonstration
+let fib_result = python::fibonacci(8)
+println("- Fibonacci(8):", fib_result)
+
+// Step 2: JavaScript formatting
+println("\n🌐 JavaScript Formatting:")
+let report = javascript::formatReport(stats)
+println(report)
+
+let chart = javascript::createChart(numbers)
+println("\n📊 Visualization:")
+println(chart)
+
+// Step 3: C computations
+println("⚡ C Fast Computations:")
+let square_result = c::fast_square(7.5)
+println("- Square of 7.5:", square_result)
+
+let factorial_result = c::fast_factorial(6)
+println("- Factorial of 6:", factorial_result)
+
+let power_result = c::fast_power(2.0, 10)
+println("- 2^10:", power_result)
+
+// Summary
+println("\n✅ CROSS-LANGUAGE INTEGRATION SUCCESS!")
+println("🐍 Python: Advanced data analysis")
+println("🌐 JavaScript: Beautiful formatting")
+println("⚡ C: High-performance computing")
+println("🎯 All languages working together seamlessly!")
+} 

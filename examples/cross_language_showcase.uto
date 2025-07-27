@@ -1,0 +1,243 @@
+// Cross-Language Integration Showcase
+// Demonstrating Python, JavaScript, C, and Rust working together
+
+println("🌟 Utopia Cross-Language Integration Showcase")
+println("============================================")
+
+// Python block - Data processing and ML
+@lang python {
+import math
+import json
+from datetime import datetime
+
+def analyze_data(numbers):
+    """Advanced data analysis using Python's strengths"""
+    if not numbers:
+        return {"error": "No data provided"}
+    
+    total = sum(numbers)
+    count = len(numbers)
+    mean = total / count
+    
+    # Calculate standard deviation
+    variance = sum((x - mean) ** 2 for x in numbers) / count
+    std_dev = math.sqrt(variance)
+    
+    # Find outliers (values > 2 standard deviations from mean)
+    outliers = [x for x in numbers if abs(x - mean) > 2 * std_dev]
+    
+    return {
+        "count": count,
+        "sum": total,
+        "mean": round(mean, 2),
+        "std_dev": round(std_dev, 2),
+        "min": min(numbers),
+        "max": max(numbers),
+        "outliers": outliers,
+        "processed_at": datetime.now().isoformat()
+    }
+
+def predict_next_value(numbers):
+    """Simple linear regression prediction"""
+    if len(numbers) < 2:
+        return numbers[-1] if numbers else 0
+    
+    # Simple moving average prediction
+    window = min(3, len(numbers))
+    recent = numbers[-window:]
+    return sum(recent) / len(recent)
+}
+
+// JavaScript block - Web/UI processing and formatting
+@lang javascript {
+function formatResults(analysisData) {
+    if (analysisData.error) {
+        return `❌ Error: ${analysisData.error}`;
+    }
+    
+    const report = `
+📊 Data Analysis Report
+=======================
+📈 Dataset Size: ${analysisData.count} values
+🔢 Sum: ${analysisData.sum}
+📊 Mean: ${analysisData.mean}
+📏 Std Dev: ${analysisData.std_dev}
+🔽 Min: ${analysisData.min}
+🔼 Max: ${analysisData.max}
+⚠️  Outliers: ${analysisData.outliers.length > 0 ? analysisData.outliers.join(', ') : 'None'}
+⏰ Processed: ${new Date(analysisData.processed_at).toLocaleString()}
+`;
+    
+    return report.trim();
+}
+
+function generateVisualization(data) {
+    // Simulate ASCII bar chart
+    const maxVal = Math.max(...data);
+    const scale = Math.min(50, maxVal); // Max 50 chars wide
+    
+    let chart = "📊 Data Visualization:\n";
+    data.forEach((value, index) => {
+        const barLength = Math.round((value / maxVal) * 30);
+        const bar = '█'.repeat(barLength) + '░'.repeat(30 - barLength);
+        chart += `${index + 1}: ${bar} ${value}\n`;
+    });
+    
+    return chart;
+}
+}
+
+// C block - High-performance number crunching
+@lang c {
+#include <stdio.h>
+#include <math.h>
+
+// Fast computation using C's performance
+double fast_compute_variance(double* data, int size, double mean) {
+    double sum_squared_diff = 0.0;
+    
+    for (int i = 0; i < size; i++) {
+        double diff = data[i] - mean;
+        sum_squared_diff += diff * diff;
+    }
+    
+    return sum_squared_diff / size;
+}
+
+int find_peak_index(double* data, int size) {
+    int peak_index = 0;
+    double max_value = data[0];
+    
+    for (int i = 1; i < size; i++) {
+        if (data[i] > max_value) {
+            max_value = data[i];
+            peak_index = i;
+        }
+    }
+    
+    return peak_index;
+}
+
+double calculate_trend(double* data, int size) {
+    if (size < 2) return 0.0;
+    
+    // Simple linear trend calculation
+    double sum_x = 0, sum_y = 0, sum_xy = 0, sum_x2 = 0;
+    
+    for (int i = 0; i < size; i++) {
+        sum_x += i;
+        sum_y += data[i];
+        sum_xy += i * data[i];
+        sum_x2 += i * i;
+    }
+    
+    double slope = (size * sum_xy - sum_x * sum_y) / (size * sum_x2 - sum_x * sum_x);
+    return slope;
+}
+}
+
+// Rust block - Memory-safe systems programming
+@lang rust {
+use std::collections::HashMap;
+
+#[derive(Debug, Clone)]
+pub struct DataPoint {
+    pub value: f64,
+    pub timestamp: u64,
+    pub category: String,
+}
+
+impl DataPoint {
+    pub fn new(value: f64, category: &str) -> Self {
+        Self {
+            value,
+            timestamp: std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_secs(),
+            category: category.to_string(),
+        }
+    }
+}
+
+pub fn categorize_data(values: &[f64]) -> HashMap<String, Vec<f64>> {
+    let mut categories = HashMap::new();
+    
+    for &value in values {
+        let category = match value {
+            x if x < 0.0 => "negative",
+            x if x == 0.0 => "zero",
+            x if x <= 10.0 => "small",
+            x if x <= 100.0 => "medium",
+            _ => "large",
+        };
+        
+        categories.entry(category.to_string())
+            .or_insert_with(Vec::new)
+            .push(value);
+    }
+    
+    categories
+}
+
+pub fn safe_divide(numerator: f64, denominator: f64) -> Option<f64> {
+    if denominator.abs() < f64::EPSILON {
+        None
+    } else {
+        Some(numerator / denominator)
+    }
+}
+}
+
+// Main coordination logic
+@lang main {
+println("🚀 Starting multi-language data processing pipeline...")
+
+// Sample dataset for analysis
+let dataset = [15.2, 23.7, 8.1, 42.3, 16.8, 35.9, 7.2, 28.4, 31.1, 19.6, 45.2, 12.3]
+
+println("📊 Original Dataset:", dataset)
+
+// Step 1: Python analysis
+println("\n🐍 Step 1: Python Data Analysis")
+let analysis = python::analyze_data(dataset)
+let prediction = python::predict_next_value(dataset)
+
+println("📈 Predicted next value:", prediction)
+
+// Step 2: JavaScript formatting and visualization  
+println("\n🌐 Step 2: JavaScript Report Generation")
+let report = javascript::formatResults(analysis)
+println(report)
+
+let visualization = javascript::generateVisualization(dataset)
+println("\n" + visualization)
+
+// Step 3: C high-performance computations
+println("\n⚡ Step 3: C Performance Computing")
+let mean = analysis.mean
+let variance = c::fast_compute_variance(dataset, dataset.length, mean)
+let peak_index = c::find_peak_index(dataset, dataset.length)
+let trend = c::calculate_trend(dataset, dataset.length)
+
+println("🔢 Variance (C computation):", variance)
+println("🏔️  Peak value at index:", peak_index, "with value:", dataset[peak_index])
+println("📈 Trend slope:", trend)
+
+// Step 4: Rust safe categorization
+println("\n🦀 Step 4: Rust Memory-Safe Processing")
+let categories = rust::categorize_data(dataset)
+println("📂 Data categories:", categories)
+
+// Safe operations
+let safe_result = rust::safe_divide(analysis.sum, analysis.count)
+println("🛡️  Safe division result:", safe_result)
+
+// Final summary
+println("\n🎯 INTEGRATION COMPLETE!")
+println("✅ Python: Advanced statistical analysis")
+println("✅ JavaScript: Report formatting and visualization") 
+println("✅ C: High-performance numerical computing")
+println("✅ Rust: Memory-safe data categorization")
+println("\n🌟 All languages working together seamlessly!")
+} 
