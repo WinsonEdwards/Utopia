@@ -68,6 +68,9 @@ output/
 *.ll
 *.cu
 
+# Exception for test scripts
+!run_macos_tests.sh
+
 # Test artifacts
 test_debug
 *.test
