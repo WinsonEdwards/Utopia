@@ -1,3 +1,0 @@
-// Test with colon
-let obj = {name: "test"}
-println("result") 

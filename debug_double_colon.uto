@@ -1,4 +1,0 @@
-// Test double colon
-let test = "hello"
-// This should fail: let result = python::add(1, 2)
-println("basic test") 

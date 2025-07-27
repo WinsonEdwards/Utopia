@@ -1,4 +1,0 @@
-// Minimal lexer test
-println("start")
-let x = test
-println("end") 

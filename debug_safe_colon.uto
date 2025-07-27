@@ -1,4 +1,0 @@
-// Test with :: in comment: python::test
-println("Testing")
-let x = 42
-println("Result:", x) 
