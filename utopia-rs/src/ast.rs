@@ -46,12 +46,32 @@ pub struct FunctionInfo {
     pub span: Span,
 }
 
-/// Function parameter information
+/// Function parameter
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Parameter {
     pub name: String,
     pub param_type: Option<Type>,
     pub default_value: Option<Expression>,
+    pub span: Span,
+}
+
+/// Class field definition
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ClassField {
+    pub name: String,
+    pub field_type: Option<Type>,
+    pub visibility: Visibility,
+    pub is_static: bool,
+    pub default_value: Option<Expression>,
+    pub span: Span,
+}
+
+/// Visibility modifier for class members
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum Visibility {
+    Public,
+    Private,
+    Protected,
 }
 
 /// Cross-language function call information
@@ -261,6 +281,13 @@ pub enum Statement {
         body: Vec<Statement>,
         span: Span,
     },
+    ClassDeclaration {
+        name: String,
+        superclass: Option<String>,
+        methods: Vec<Function>,
+        fields: Vec<ClassField>,
+        span: Span,
+    },
 }
 
 impl Statement {
@@ -277,6 +304,7 @@ impl Statement {
             Statement::Export { span, .. } => *span,
             Statement::Block { span, .. } => *span,
             Statement::FunctionDeclaration { span, .. } => *span,
+            Statement::ClassDeclaration { span, .. } => *span,
         }
     }
 }
@@ -616,6 +644,20 @@ impl Visitor for PrettyPrinter {
                 }
                 
                 self.indent -= 1;
+                self.write_line("}");
+            }
+            Statement::ClassDeclaration { name, superclass, methods, fields, .. } => {
+                let superclass_str = superclass.as_ref()
+                    .map(|s| format!("extends {}", s))
+                    .unwrap_or_default();
+                
+                self.write_line(&format!("class {}({}) {{", name, superclass_str));
+                self.indent += 1;
+                
+                for method in methods {
+                    method.accept(self);
+                }
+                
                 self.write_line("}");
             }
             // Add other statement types as needed

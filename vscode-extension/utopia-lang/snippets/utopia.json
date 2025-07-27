@@ -1,0 +1,155 @@
+{
+    "Language Block Python": {
+        "prefix": "langpy",
+        "body": [
+            "@lang python {",
+            "    def ${1:function_name}(${2:params}):",
+            "        ${3:# function body}",
+            "        return ${4:result}",
+            "}"
+        ],
+        "description": "Create a Python language block"
+    },
+    "Language Block JavaScript": {
+        "prefix": "langjs",
+        "body": [
+            "@lang javascript {",
+            "    function ${1:functionName}(${2:params}) {",
+            "        ${3:// function body}",
+            "        return ${4:result};",
+            "    }",
+            "}"
+        ],
+        "description": "Create a JavaScript language block"
+    },
+    "Language Block Java": {
+        "prefix": "langjava",
+        "body": [
+            "@lang java {",
+            "    public class ${1:ClassName} {",
+            "        public static ${2:returnType} ${3:methodName}(${4:params}) {",
+            "            ${5:// method body}",
+            "            return ${6:result};",
+            "        }",
+            "    }",
+            "}"
+        ],
+        "description": "Create a Java language block"
+    },
+    "Language Block Rust": {
+        "prefix": "langrust",
+        "body": [
+            "@lang rust {",
+            "    fn ${1:function_name}(${2:params}) -> ${3:return_type} {",
+            "        ${4:// function body}",
+            "        ${5:result}",
+            "    }",
+            "}"
+        ],
+        "description": "Create a Rust language block"
+    },
+    "Language Block C++": {
+        "prefix": "langcpp",
+        "body": [
+            "@lang cpp {",
+            "    ${1:return_type} ${2:function_name}(${3:params}) {",
+            "        ${4:// function body}",
+            "        return ${5:result};",
+            "    }",
+            "}"
+        ],
+        "description": "Create a C++ language block"
+    },
+    "Cross-Language Call": {
+        "prefix": "call",
+        "body": [
+            "let ${1:result} = ${2:language}::${3:function_name}(${4:arguments})"
+        ],
+        "description": "Create a cross-language function call"
+    },
+    "Utopia Function": {
+        "prefix": "func",
+        "body": [
+            "function ${1:functionName}(${2:params}) {",
+            "    ${3:// function body}",
+            "    return ${4:result}",
+            "}"
+        ],
+        "description": "Create a Utopia function"
+    },
+    "Utopia Class": {
+        "prefix": "class",
+        "body": [
+            "class ${1:ClassName} {",
+            "    constructor(${2:params}) {",
+            "        ${3:// constructor body}",
+            "    }",
+            "    ",
+            "    ${4:methodName}(${5:params}) {",
+            "        ${6:// method body}",
+            "        return ${7:result}",
+            "    }",
+            "}"
+        ],
+        "description": "Create a Utopia class"
+    },
+    "Multi-Language Example": {
+        "prefix": "multiexample",
+        "body": [
+            "// Multi-language ${1:feature} implementation",
+            "println(\"Starting ${1:feature} processing...\")",
+            "",
+            "@lang python {",
+            "    def ${2:python_function}(${3:data}):",
+            "        ${4:# Python implementation}",
+            "        return ${5:result}",
+            "}",
+            "",
+            "@lang javascript {",
+            "    function ${6:jsFunction}(${7:data}) {",
+            "        ${8:// JavaScript implementation}",
+            "        return ${9:result};",
+            "    }",
+            "}",
+            "",
+            "// Execute cross-language workflow",
+            "let python_result = python::${2:python_function}(${10:input})",
+            "let js_result = javascript::${6:jsFunction}(python_result)",
+            "",
+            "println(\"Results:\", python_result, js_result)"
+        ],
+        "description": "Create a complete multi-language example"
+    },
+    "Print Statement": {
+        "prefix": "print",
+        "body": [
+            "println(${1:\"message\"})"
+        ],
+        "description": "Create a print statement"
+    },
+    "Variable Declaration": {
+        "prefix": "let",
+        "body": [
+            "let ${1:variable} = ${2:value}"
+        ],
+        "description": "Create a variable declaration"
+    },
+    "For Loop": {
+        "prefix": "for",
+        "body": [
+            "for ${1:i} = ${2:0}; ${1:i} < ${3:length}; ${1:i}++ {",
+            "    ${4:// loop body}",
+            "}"
+        ],
+        "description": "Create a for loop"
+    },
+    "If Statement": {
+        "prefix": "if",
+        "body": [
+            "if ${1:condition} {",
+            "    ${2:// if body}",
+            "}"
+        ],
+        "description": "Create an if statement"
+    }
+} 

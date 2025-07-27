@@ -1,0 +1,167 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "Utopia",
+    "scopeName": "source.utopia",
+    "patterns": [
+        {
+            "include": "#comments"
+        },
+        {
+            "include": "#strings"
+        },
+        {
+            "include": "#numbers"
+        },
+        {
+            "include": "#keywords"
+        },
+        {
+            "include": "#language-blocks"
+        },
+        {
+            "include": "#cross-language-calls"
+        },
+        {
+            "include": "#functions"
+        },
+        {
+            "include": "#variables"
+        }
+    ],
+    "repository": {
+        "comments": {
+            "patterns": [
+                {
+                    "name": "comment.line.double-slash.utopia",
+                    "match": "//.*$"
+                },
+                {
+                    "name": "comment.block.utopia",
+                    "begin": "/\\*",
+                    "end": "\\*/"
+                }
+            ]
+        },
+        "strings": {
+            "patterns": [
+                {
+                    "name": "string.quoted.double.utopia",
+                    "begin": "\"",
+                    "end": "\"",
+                    "patterns": [
+                        {
+                            "name": "constant.character.escape.utopia",
+                            "match": "\\\\."
+                        }
+                    ]
+                },
+                {
+                    "name": "string.quoted.single.utopia",
+                    "begin": "'",
+                    "end": "'",
+                    "patterns": [
+                        {
+                            "name": "constant.character.escape.utopia",
+                            "match": "\\\\."
+                        }
+                    ]
+                }
+            ]
+        },
+        "numbers": {
+            "patterns": [
+                {
+                    "name": "constant.numeric.utopia",
+                    "match": "\\b\\d+(\\.\\d+)?\\b"
+                }
+            ]
+        },
+        "keywords": {
+            "patterns": [
+                {
+                    "name": "keyword.control.utopia",
+                    "match": "\\b(if|else|while|for|return|break|continue|function|let|const|var)\\b"
+                },
+                {
+                    "name": "keyword.other.utopia",
+                    "match": "\\b(println|import|export|class|extends|implements)\\b"
+                },
+                {
+                    "name": "storage.type.utopia",
+                    "match": "\\b(string|number|boolean|void|any)\\b"
+                }
+            ]
+        },
+        "language-blocks": {
+            "patterns": [
+                {
+                    "name": "meta.language-block.utopia",
+                    "begin": "@lang\\s+(\\w+)\\s*{",
+                    "end": "}",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "keyword.other.language-directive.utopia"
+                        },
+                        "1": {
+                            "name": "entity.name.type.language.utopia"
+                        }
+                    },
+                    "patterns": [
+                        {
+                            "include": "#language-block-content"
+                        }
+                    ]
+                }
+            ]
+        },
+        "language-block-content": {
+            "patterns": [
+                {
+                    "name": "source.python.embedded.utopia",
+                    "match": ".*",
+                    "comment": "Raw language content - could be enhanced with specific language grammars"
+                }
+            ]
+        },
+        "cross-language-calls": {
+            "patterns": [
+                {
+                    "name": "meta.cross-language-call.utopia",
+                    "match": "(\\w+)::(\\w+)\\s*\\(",
+                    "captures": {
+                        "1": {
+                            "name": "entity.name.type.language.utopia"
+                        },
+                        "2": {
+                            "name": "entity.name.function.cross-language.utopia"
+                        }
+                    }
+                }
+            ]
+        },
+        "functions": {
+            "patterns": [
+                {
+                    "name": "meta.function.utopia",
+                    "match": "\\b(function|def|fn)\\s+(\\w+)\\s*\\(",
+                    "captures": {
+                        "1": {
+                            "name": "storage.type.function.utopia"
+                        },
+                        "2": {
+                            "name": "entity.name.function.utopia"
+                        }
+                    }
+                }
+            ]
+        },
+        "variables": {
+            "patterns": [
+                {
+                    "name": "variable.other.utopia",
+                    "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b"
+                }
+            ]
+        }
+    }
+} 

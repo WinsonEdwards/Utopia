@@ -1,0 +1,154 @@
+{
+    "name": "utopia-lang",
+    "displayName": "Utopia Multi-Language",
+    "description": "Syntax highlighting and IntelliSense for Utopia multi-language files",
+    "version": "1.0.0",
+    "engines": {
+        "vscode": "^1.74.0"
+    },
+    "categories": [
+        "Programming Languages",
+        "Snippets",
+        "Other"
+    ],
+    "keywords": [
+        "utopia",
+        "multi-language",
+        "compiler",
+        "cross-language",
+        "polyglot"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "languages": [
+            {
+                "id": "utopia",
+                "aliases": ["Utopia", "utopia"],
+                "extensions": [".uto"],
+                "configuration": "./language-configuration.json",
+                "icon": {
+                    "light": "./icons/utopia-light.svg",
+                    "dark": "./icons/utopia-dark.svg"
+                }
+            }
+        ],
+        "grammars": [
+            {
+                "language": "utopia",
+                "scopeName": "source.utopia",
+                "path": "./syntaxes/utopia.tmLanguage.json"
+            }
+        ],
+        "snippets": [
+            {
+                "language": "utopia",
+                "path": "./snippets/utopia.json"
+            }
+        ],
+        "commands": [
+            {
+                "command": "utopia.compile",
+                "title": "Compile Utopia File",
+                "category": "Utopia"
+            },
+            {
+                "command": "utopia.compileToTarget",
+                "title": "Compile to Specific Target",
+                "category": "Utopia"
+            },
+            {
+                "command": "utopia.showLanguages",
+                "title": "Show Supported Languages",
+                "category": "Utopia"
+            },
+            {
+                "command": "utopia.runTests",
+                "title": "Run Language Tests",
+                "category": "Utopia"
+            }
+        ],
+        "menus": {
+            "editor/context": [
+                {
+                    "when": "resourceExtname == .uto",
+                    "command": "utopia.compile",
+                    "group": "utopia@1"
+                },
+                {
+                    "when": "resourceExtname == .uto",
+                    "command": "utopia.compileToTarget",
+                    "group": "utopia@2"
+                }
+            ],
+            "explorer/context": [
+                {
+                    "when": "resourceExtname == .uto",
+                    "command": "utopia.compile",
+                    "group": "utopia@1"
+                }
+            ]
+        },
+        "keybindings": [
+            {
+                "command": "utopia.compile",
+                "key": "ctrl+shift+u",
+                "mac": "cmd+shift+u",
+                "when": "resourceExtname == .uto"
+            }
+        ],
+        "configuration": {
+            "title": "Utopia",
+            "properties": {
+                "utopia.compilerPath": {
+                    "type": "string",
+                    "default": "utopia",
+                    "description": "Path to the Utopia compiler executable"
+                },
+                "utopia.defaultTarget": {
+                    "type": "string",
+                    "default": "python",
+                    "enum": [
+                        "python", "javascript", "typescript", "c", "cpp", "rust", "go", "java",
+                        "assembly", "llvm", "wasm", "solidity", "csharp", "kotlin", "scala",
+                        "haskell", "ruby", "lua", "dart", "swift"
+                    ],
+                    "description": "Default compilation target"
+                },
+                "utopia.enableAutoComplete": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable auto-completion for cross-language calls"
+                },
+                "utopia.enableSyntaxHighlighting": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable enhanced syntax highlighting for language blocks"
+                }
+            }
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./"
+    },
+    "devDependencies": {
+        "@types/node": "16.x",
+        "@types/vscode": "^1.74.0",
+        "typescript": "^4.9.4"
+    },
+    "activationEvents": [
+        "onLanguage:utopia",
+        "onCommand:utopia.compile"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/WinsonEdwards/Utopia.git"
+    },
+    "author": "Utopia Team",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/WinsonEdwards/Utopia/issues"
+    },
+    "homepage": "https://github.com/WinsonEdwards/Utopia#readme"
+} 
