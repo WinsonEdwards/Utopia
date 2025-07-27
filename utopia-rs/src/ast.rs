@@ -130,6 +130,7 @@ pub struct LanguageBlock {
     pub language: String,
     pub functions: Vec<Function>,
     pub statements: Vec<Statement>,
+    pub raw_content: Option<String>,  // Store raw language-specific content
     pub span: Span,
 }
 
@@ -139,6 +140,7 @@ impl LanguageBlock {
             language,
             functions: Vec::new(),
             statements: Vec::new(),
+            raw_content: None,
             span,
         }
     }

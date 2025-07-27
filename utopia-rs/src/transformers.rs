@@ -73,6 +73,14 @@ impl PythonTransformer {
     fn generate_python_block(&self, block: &LanguageBlock) -> Result<String> {
         let mut output = String::new();
         
+        // If we have raw content, use it directly
+        if let Some(raw_content) = &block.raw_content {
+            output.push_str(raw_content);
+            output.push('\n');
+            return Ok(output);
+        }
+        
+        // Otherwise, generate from AST (legacy support)
         for function in &block.functions {
             output.push_str(&self.generate_function(function)?);
             output.push('\n');

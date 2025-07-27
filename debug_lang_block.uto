@@ -1,0 +1,8 @@
+println("test")
+
+@lang python {
+    def test():
+        return 5
+}
+
+println("done") 

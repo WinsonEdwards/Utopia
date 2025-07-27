@@ -94,27 +94,134 @@ impl Parser {
         
         let mut lang_block = LanguageBlock::new(language, start_span);
         
-        // Parse functions and statements
-        while !self.check(&TokenKind::RightBrace) && !self.is_at_end() {
-            // Skip newlines
-            if self.check(&TokenKind::Newline) {
-                self.advance();
-                continue;
+        // Parse raw content until matching '}'
+        let mut brace_count = 1;
+        let mut raw_content = String::new();
+        let mut need_space = false;
+        let mut at_line_start = true;
+        
+        while brace_count > 0 && !self.is_at_end() {
+            let token = self.current_token();
+            
+            match &token.kind {
+                TokenKind::LeftBrace => {
+                    brace_count += 1;
+                    if need_space && !at_line_start {
+                        raw_content.push(' ');
+                    }
+                    raw_content.push('{');
+                    need_space = true;
+                    at_line_start = false;
+                }
+                TokenKind::RightBrace => {
+                    brace_count -= 1;
+                    if brace_count > 0 {
+                        if need_space && !at_line_start {
+                            raw_content.push(' ');
+                        }
+                        raw_content.push('}');
+                        need_space = true;
+                    }
+                    at_line_start = false;
+                }
+                TokenKind::Newline => {
+                    raw_content.push('\n');
+                    need_space = false;
+                    at_line_start = true;
+                }
+                TokenKind::Identifier(_) => {
+                    if need_space && !at_line_start {
+                        raw_content.push(' ');
+                    }
+                    if at_line_start {
+                        raw_content.push_str("    "); // Add 4 spaces for indentation
+                    }
+                    raw_content.push_str(&token.lexeme);
+                    need_space = true;
+                    at_line_start = false;
+                }
+                TokenKind::Colon => {
+                    raw_content.push(':');
+                    need_space = false;
+                    at_line_start = false;
+                }
+                TokenKind::LeftParen => {
+                    raw_content.push('(');
+                    need_space = false;
+                    at_line_start = false;
+                }
+                TokenKind::RightParen => {
+                    raw_content.push(')');
+                    need_space = false;
+                    at_line_start = false;
+                }
+                TokenKind::Number(n) => {
+                    if need_space && !at_line_start {
+                        raw_content.push(' ');
+                    }
+                    if at_line_start {
+                        raw_content.push_str("        "); // Add 8 spaces for deeper indentation
+                    }
+                    raw_content.push_str(n);
+                    need_space = true;
+                    at_line_start = false;
+                }
+                TokenKind::String(s) => {
+                    if need_space && !at_line_start {
+                        raw_content.push(' ');
+                    }
+                    if at_line_start {
+                        raw_content.push_str("        "); // Add 8 spaces for deeper indentation
+                    }
+                    raw_content.push('"');
+                    raw_content.push_str(s);
+                    raw_content.push('"');
+                    need_space = true;
+                    at_line_start = false;
+                }
+                TokenKind::Plus | TokenKind::Minus | TokenKind::Star | TokenKind::Slash => {
+                    if need_space && !at_line_start {
+                        raw_content.push(' ');
+                    }
+                    raw_content.push_str(&token.lexeme);
+                    raw_content.push(' ');
+                    need_space = false;
+                    at_line_start = false;
+                }
+                TokenKind::Comma => {
+                    raw_content.push(',');
+                    raw_content.push(' ');
+                    need_space = false;
+                    at_line_start = false;
+                }
+                _ => {
+                    if need_space && !at_line_start {
+                        raw_content.push(' ');
+                    }
+                    if at_line_start {
+                        raw_content.push_str("    "); // Add 4 spaces for indentation
+                    }
+                    raw_content.push_str(&token.lexeme);
+                    need_space = true;
+                    at_line_start = false;
+                }
             }
             
-            // Check for function declaration
-            if self.check(&TokenKind::Function) {
-                let function = self.parse_function(&lang_block.language)?;
-                lang_block.add_function(function);
-            } else {
-                // Parse regular statement
-                let statement = self.parse_statement()?;
-                lang_block.add_statement(statement);
+            if brace_count > 0 {
+                self.advance();
             }
         }
         
-        // Consume '}'
-        self.consume(&TokenKind::RightBrace, "Expected '}'")?;
+        // Consume the final '}'
+        if brace_count == 0 {
+            self.advance();
+        }
+        
+        // Store the raw content in the language block
+        // For now, create a simple statement to hold the raw content
+        if !raw_content.trim().is_empty() {
+            lang_block.raw_content = Some(raw_content.trim().to_string());
+        }
         
         Ok(lang_block)
     }
