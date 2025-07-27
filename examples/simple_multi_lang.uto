@@ -1,0 +1,51 @@
+// Simple Multi-Language Demo
+println("Multi-Language Integration")
+
+// Python functions
+@lang python {
+    def add_numbers(a, b):
+        return a + b
+    
+    def multiply_list(numbers, factor):
+        return [x * factor for x in numbers]
+}
+
+// JavaScript functions  
+@lang javascript {
+    function format_number(num) {
+        return "Number: " + num.toString();
+    }
+    
+    function create_array(size, value) {
+        return new Array(size).fill(value);
+    }
+}
+
+// C functions
+@lang c {
+    int factorial(int n) {
+        if (n <= 1) return 1;
+        return n * factorial(n - 1);
+    }
+    
+    double power(double base, int exp) {
+        double result = 1.0;
+        for (int i = 0; i < exp; i++) {
+            result *= base;
+        }
+        return result;
+    }
+}
+
+// Main program
+println("Testing multi-language compilation")
+let x = 10
+let y = 5
+println("Sample values:", x, y)
+
+println("Each language block contains specialized functions")
+println("Python: add_numbers, multiply_list") 
+println("JavaScript: format_number, create_array")
+println("C: factorial, power")
+
+println("Multi-language compilation successful!") 

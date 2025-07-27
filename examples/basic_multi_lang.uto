@@ -1,0 +1,25 @@
+// Basic Multi-Language Demo
+println("Multi-Language Test")
+
+@lang python {
+    def add(a, b):
+        return a + b
+}
+
+@lang javascript {
+    function multiply(a, b) {
+        return a * b;
+    }
+}
+
+@lang c {
+    int subtract(int a, int b) {
+        return a - b;
+    }
+}
+
+println("Functions defined in multiple languages")
+println("Python: add function")
+println("JavaScript: multiply function")  
+println("C: subtract function")
+println("Compilation test complete") 

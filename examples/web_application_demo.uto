@@ -1,0 +1,316 @@
+// Full-Stack Web Application Demo
+// Frontend: TypeScript, Backend: Python, Database: SQL
+
+println("🌐 Full-Stack Web Application Demo")
+println("==================================")
+
+// TypeScript Frontend
+@lang typescript {
+    interface User {
+        id: number;
+        username: string;
+        email: string;
+        isActive: boolean;
+    }
+    
+    interface ApiResponse<T> {
+        success: boolean;
+        data?: T;
+        error?: string;
+    }
+    
+    class UserService {
+        private apiUrl: string = "/api/users";
+        
+        async createUser(username: string, email: string): Promise<ApiResponse<User>> {
+            try {
+                const response = await fetch(this.apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, email })
+                });
+                
+                const data = await response.json();
+                return { success: true, data };
+            } catch (error) {
+                return { 
+                    success: false, 
+                    error: error instanceof Error ? error.message : 'Unknown error'
+                };
+            }
+        }
+        
+        async getUsers(): Promise<ApiResponse<User[]>> {
+            try {
+                const response = await fetch(this.apiUrl);
+                const users = await response.json();
+                return { success: true, data: users };
+            } catch (error) {
+                return {
+                    success: false,
+                    error: error instanceof Error ? error.message : 'Failed to fetch users'
+                };
+            }
+        }
+    }
+    
+    class UIRenderer {
+        renderUserList(users: User[]): string {
+            return users.map(user => `
+                <div class="user-card">
+                    <h3>${user.username}</h3>
+                    <p>Email: ${user.email}</p>
+                    <span class="status ${user.isActive ? 'active' : 'inactive'}">
+                        ${user.isActive ? 'Active' : 'Inactive'}
+                    </span>
+                </div>
+            `).join('');
+        }
+        
+        renderLoginForm(): string {
+            return `
+                <form id="loginForm" class="auth-form">
+                    <h2>Login</h2>
+                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="password" name="password" placeholder="Password" required>
+                    <button type="submit">Login</button>
+                </form>
+            `;
+        }
+    }
+}
+
+// Python Backend API
+@lang python {
+    def handle_user_creation(username, email):
+        # Validate input data
+        if not username or not email:
+            return {
+                "success": False,
+                "error": "Username and email are required"
+            }
+        
+        # Simulate user creation
+        user_id = len(get_all_users()) + 1
+        new_user = {
+            "id": user_id,
+            "username": username,
+            "email": email,
+            "isActive": True,
+            "createdAt": "2024-01-01T00:00:00Z"
+        }
+        
+        # Save to database (simulated)
+        save_user_to_db(new_user)
+        
+        return {
+            "success": True,
+            "data": new_user
+        }
+    
+    def get_all_users():
+        # Simulate database query
+        return [
+            {
+                "id": 1,
+                "username": "alice",
+                "email": "alice@example.com",
+                "isActive": True
+            },
+            {
+                "id": 2,
+                "username": "bob",
+                "email": "bob@example.com",
+                "isActive": False
+            }
+        ]
+    
+    def authenticate_user(username, password):
+        users = get_all_users()
+        for user in users:
+            if user["username"] == username:
+                # Simple password check (in real app, use proper hashing)
+                if password == "password123":
+                    return {
+                        "success": True,
+                        "user": user,
+                        "token": generate_auth_token(user["id"])
+                    }
+        
+        return {
+            "success": False,
+            "error": "Invalid credentials"
+        }
+    
+    def generate_auth_token(user_id):
+        # Simplified token generation
+        import time
+        timestamp = int(time.time())
+        return f"token_{user_id}_{timestamp}"
+    
+    def save_user_to_db(user):
+        # Simulated database save
+        print(f"Saving user to database: {user['username']}")
+        return True
+}
+
+// SQL Database Schema
+@lang sql {
+    CREATE TABLE users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(50) UNIQUE NOT NULL,
+        email VARCHAR(100) UNIQUE NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    
+    CREATE TABLE sessions (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id),
+        token VARCHAR(255) UNIQUE NOT NULL,
+        expires_at TIMESTAMP NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    
+    CREATE INDEX idx_users_username ON users(username);
+    CREATE INDEX idx_users_email ON users(email);
+    CREATE INDEX idx_sessions_token ON sessions(token);
+    CREATE INDEX idx_sessions_user_id ON sessions(user_id);
+    
+    -- Sample queries
+    INSERT INTO users (username, email, password_hash) VALUES
+    ('alice', 'alice@example.com', 'hash123'),
+    ('bob', 'bob@example.com', 'hash456');
+    
+    SELECT * FROM users WHERE is_active = TRUE;
+    
+    UPDATE users SET updated_at = CURRENT_TIMESTAMP 
+    WHERE id = 1;
+}
+
+// JavaScript Client-Side Logic
+@lang javascript {
+    function initializeApp() {
+        const userService = new UserService();
+        const uiRenderer = new UIRenderer();
+        
+        // Load and display users
+        loadUsers();
+        
+        // Setup event listeners
+        setupEventListeners();
+        
+        console.log("Web application initialized");
+    }
+    
+    async function loadUsers() {
+        const response = await userService.getUsers();
+        
+        if (response.success && response.data) {
+            const userListHTML = uiRenderer.renderUserList(response.data);
+            document.getElementById('userList').innerHTML = userListHTML;
+        } else {
+            console.error('Failed to load users:', response.error);
+            showErrorMessage(response.error || 'Failed to load users');
+        }
+    }
+    
+    function setupEventListeners() {
+        // Login form submission
+        document.addEventListener('submit', async function(e) {
+            if (e.target.id === 'loginForm') {
+                e.preventDefault();
+                await handleLogin(e.target);
+            }
+        });
+        
+        // User creation form
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('create-user-btn')) {
+                showCreateUserForm();
+            }
+        });
+    }
+    
+    async function handleLogin(form) {
+        const formData = new FormData(form);
+        const username = formData.get('username');
+        const password = formData.get('password');
+        
+        try {
+            // This would call the Python backend
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                localStorage.setItem('authToken', result.token);
+                showDashboard();
+            } else {
+                showErrorMessage(result.error);
+            }
+        } catch (error) {
+            showErrorMessage('Login failed: ' + error.message);
+        }
+    }
+    
+    function showErrorMessage(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = message;
+        document.body.appendChild(errorDiv);
+        
+        setTimeout(() => errorDiv.remove(), 5000);
+    }
+    
+    function showDashboard() {
+        document.body.innerHTML = '<h1>Welcome to Dashboard!</h1>';
+        loadUsers();
+    }
+    
+    function showCreateUserForm() {
+        const formHTML = `
+            <form id="createUserForm">
+                <h2>Create New User</h2>
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="email" name="email" placeholder="Email" required>
+                <button type="submit">Create User</button>
+            </form>
+        `;
+        document.getElementById('forms').innerHTML = formHTML;
+    }
+}
+
+// Main demonstration
+println("🏗️ Building full-stack web application...")
+println("")
+println("📱 Frontend (TypeScript):")
+println("  • User interface components")
+println("  • Type-safe API communication")
+println("  • Modern async/await patterns")
+println("")
+println("🐍 Backend (Python):")
+println("  • RESTful API endpoints")
+println("  • User authentication")
+println("  • Database operations")
+println("")
+println("🗄️ Database (SQL):")
+println("  • User and session tables")
+println("  • Proper indexing")
+println("  • Sample data queries")
+println("")
+println("🌐 Client (JavaScript):")
+println("  • DOM manipulation")
+println("  • Event handling")
+println("  • API integration")
+println("")
+println("✅ Full-stack application architecture complete!")
+println("🚀 Multi-language web development with Utopia!") 

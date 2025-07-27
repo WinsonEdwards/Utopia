@@ -1,0 +1,325 @@
+// Game Development Demo
+// C++ for engine, JavaScript for UI, Python for AI
+
+println("🎮 Game Development Multi-Language Demo")
+println("======================================")
+
+// C++ Game Engine Core
+@lang cpp {
+    #include <iostream>
+    #include <vector>
+    #include <cmath>
+    
+    class GameObject {
+    public:
+        float x, y, z;
+        float velocityX, velocityY, velocityZ;
+        bool isActive;
+        
+        GameObject(float startX, float startY, float startZ) {
+            x = startX;
+            y = startY;
+            z = startZ;
+            velocityX = 0.0f;
+            velocityY = 0.0f;
+            velocityZ = 0.0f;
+            isActive = true;
+        }
+        
+        void update(float deltaTime) {
+            if (isActive) {
+                x += velocityX * deltaTime;
+                y += velocityY * deltaTime;
+                z += velocityZ * deltaTime;
+            }
+        }
+        
+        float distanceTo(const GameObject& other) {
+            float dx = x - other.x;
+            float dy = y - other.y;
+            float dz = z - other.z;
+            return sqrt(dx*dx + dy*dy + dz*dz);
+        }
+    };
+    
+    class GameEngine {
+    private:
+        std::vector<GameObject> objects;
+        float currentTime;
+        
+    public:
+        GameEngine() {
+            currentTime = 0.0f;
+        }
+        
+        void addObject(float x, float y, float z) {
+            objects.push_back(GameObject(x, y, z));
+        }
+        
+        void updateAll(float deltaTime) {
+            currentTime += deltaTime;
+            
+            for (auto& obj : objects) {
+                obj.update(deltaTime);
+            }
+        }
+        
+        int getObjectCount() {
+            return objects.size();
+        }
+        
+        void checkCollisions() {
+            for (size_t i = 0; i < objects.size(); i++) {
+                for (size_t j = i + 1; j < objects.size(); j++) {
+                    if (objects[i].distanceTo(objects[j]) < 1.0f) {
+                        // Collision detected
+                        std::cout << "Collision between objects " << i << " and " << j << std::endl;
+                    }
+                }
+            }
+        }
+    };
+}
+
+// JavaScript Game UI and Controls
+@lang javascript {
+    class GameUI {
+        constructor() {
+            this.score = 0;
+            this.level = 1;
+            this.lives = 3;
+            this.isGameRunning = false;
+        }
+        
+        startGame() {
+            this.isGameRunning = true;
+            this.score = 0;
+            this.level = 1;
+            this.lives = 3;
+            this.updateDisplay();
+            console.log("Game started!");
+        }
+        
+        updateScore(points) {
+            this.score += points;
+            if (this.score > this.level * 1000) {
+                this.levelUp();
+            }
+            this.updateDisplay();
+        }
+        
+        levelUp() {
+            this.level += 1;
+            console.log("Level up! Now on level " + this.level);
+        }
+        
+        loseLife() {
+            this.lives -= 1;
+            if (this.lives <= 0) {
+                this.gameOver();
+            }
+            this.updateDisplay();
+        }
+        
+        gameOver() {
+            this.isGameRunning = false;
+            console.log("Game Over! Final score: " + this.score);
+        }
+        
+        updateDisplay() {
+            const gameInfo = {
+                score: this.score,
+                level: this.level,
+                lives: this.lives,
+                status: this.isGameRunning ? "Playing" : "Game Over"
+            };
+            
+            console.log("Game Status:", JSON.stringify(gameInfo));
+        }
+        
+        handleInput(keyCode) {
+            if (!this.isGameRunning) return;
+            
+            switch(keyCode) {
+                case 37: // Left arrow
+                    console.log("Moving left");
+                    break;
+                case 38: // Up arrow
+                    console.log("Moving up");
+                    break;
+                case 39: // Right arrow
+                    console.log("Moving right");
+                    break;
+                case 40: // Down arrow
+                    console.log("Moving down");
+                    break;
+                case 32: // Spacebar
+                    console.log("Shooting");
+                    break;
+            }
+        }
+        
+        renderGame(gameObjects) {
+            console.log("Rendering " + gameObjects.length + " objects");
+            
+            for (let i = 0; i < gameObjects.length; i++) {
+                const obj = gameObjects[i];
+                console.log("Object " + i + " at position (" + 
+                           obj.x + ", " + obj.y + ", " + obj.z + ")");
+            }
+        }
+    }
+    
+    class InputHandler {
+        constructor() {
+            this.keys = {};
+        }
+        
+        isKeyPressed(keyCode) {
+            return this.keys[keyCode] || false;
+        }
+        
+        setKeyState(keyCode, isPressed) {
+            this.keys[keyCode] = isPressed;
+        }
+        
+        getMovementVector() {
+            let x = 0;
+            let y = 0;
+            
+            if (this.isKeyPressed(37)) x -= 1; // Left
+            if (this.isKeyPressed(39)) x += 1; // Right
+            if (this.isKeyPressed(38)) y -= 1; // Up
+            if (this.isKeyPressed(40)) y += 1; // Down
+            
+            return { x: x, y: y };
+        }
+    }
+}
+
+// Python AI and Game Logic
+@lang python {
+    import random
+    import math
+    
+    class AIPlayer:
+        def __init__(self, difficulty=1):
+            self.difficulty = difficulty
+            self.position = [0.0, 0.0]
+            self.target = [0.0, 0.0]
+            self.health = 100
+            self.attack_cooldown = 0
+        
+        def update_ai(self, player_position, delta_time):
+            # Simple AI that moves toward player
+            dx = player_position[0] - self.position[0]
+            dy = player_position[1] - self.position[1]
+            distance = math.sqrt(dx * dx + dy * dy)
+            
+            if distance > 0.1:
+                # Normalize and apply AI speed
+                speed = 50.0 * self.difficulty
+                self.position[0] += (dx / distance) * speed * delta_time
+                self.position[1] += (dy / distance) * speed * delta_time
+            
+            # Update attack cooldown
+            if self.attack_cooldown > 0:
+                self.attack_cooldown -= delta_time
+        
+        def should_attack(self, player_position):
+            if self.attack_cooldown > 0:
+                return False
+            
+            dx = player_position[0] - self.position[0]
+            dy = player_position[1] - self.position[1]
+            distance = math.sqrt(dx * dx + dy * dy)
+            
+            return distance < 30.0  # Attack range
+        
+        def perform_attack(self):
+            if self.attack_cooldown <= 0:
+                self.attack_cooldown = 1.0  # 1 second cooldown
+                damage = random.randint(10, 20) * self.difficulty
+                return damage
+            return 0
+    
+    class GameAI:
+        def __init__(self):
+            self.enemies = []
+            self.spawn_timer = 0.0
+            self.spawn_interval = 3.0
+        
+        def update(self, player_position, delta_time):
+            # Update spawn timer
+            self.spawn_timer += delta_time
+            
+            # Spawn new enemies
+            if self.spawn_timer >= self.spawn_interval:
+                self.spawn_enemy()
+                self.spawn_timer = 0.0
+            
+            # Update all enemies
+            for enemy in self.enemies:
+                enemy.update_ai(player_position, delta_time)
+        
+        def spawn_enemy(self):
+            # Spawn enemy at random position
+            x = random.uniform(-100, 100)
+            y = random.uniform(-100, 100)
+            difficulty = min(len(self.enemies) // 5 + 1, 5)  # Increase difficulty
+            
+            enemy = AIPlayer(difficulty)
+            enemy.position = [x, y]
+            self.enemies.append(enemy)
+        
+        def get_enemy_count(self):
+            return len(self.enemies)
+        
+        def check_enemy_attacks(self, player_position):
+            total_damage = 0
+            
+            for enemy in self.enemies:
+                if enemy.should_attack(player_position):
+                    damage = enemy.perform_attack()
+                    total_damage += damage
+            
+            return total_damage
+        
+        def remove_defeated_enemies(self):
+            self.enemies = [enemy for enemy in self.enemies if enemy.health > 0]
+    
+    def calculate_game_stats(score, time_played):
+        return {
+            "score_per_minute": score / max(time_played / 60.0, 1.0),
+            "efficiency": min(score / 1000.0, 1.0),
+            "performance_rating": "Excellent" if score > 5000 else "Good" if score > 2000 else "Beginner"
+        }
+}
+
+// Main game demonstration
+println("🏗️ Building multi-language game...")
+println("")
+println("⚡ C++ Engine:")
+println("  • High-performance 3D game objects")
+println("  • Physics and collision detection")
+println("  • Memory-efficient object management")
+println("")
+println("🌐 JavaScript UI:")
+println("  • Real-time user interface")
+println("  • Input handling and controls")
+println("  • Game state management")
+println("")
+println("🧠 Python AI:")
+println("  • Intelligent enemy behavior")
+println("  • Dynamic difficulty scaling")
+println("  • Game statistics and analytics")
+println("")
+println("✅ Multi-language game architecture complete!")
+println("")
+println("🎯 Game Features:")
+println("  • Real-time 3D rendering (C++)")
+println("  • Responsive UI controls (JavaScript)")
+println("  • Smart AI opponents (Python)")
+println("  • Cross-language data sharing")
+println("")
+println("🚀 Next-generation game development with Utopia!") 

@@ -1,0 +1,122 @@
+// Basic Multi-Language Showcase
+println("🌟 Utopia Multi-Language Showcase")
+println("================================")
+
+// Python functions
+@lang python {
+    def greet(name):
+        return "Hello " + name + " from Python!"
+    
+    def calculate_area(length, width):
+        return length * width
+    
+    def process_list(numbers):
+        total = 0
+        for num in numbers:
+            total += num
+        return total
+}
+
+// JavaScript functions
+@lang javascript {
+    function welcome(name) {
+        return "Welcome " + name + " to JavaScript!";
+    }
+    
+    function multiply_numbers(a, b) {
+        return a * b;
+    }
+    
+    function create_message(user, action) {
+        return user + " performed " + action + " successfully";
+    }
+}
+
+// C functions
+@lang c {
+    int add_integers(int a, int b) {
+        return a + b;
+    }
+    
+    double calculate_circle_area(double radius) {
+        return 3.14159 * radius * radius;
+    }
+    
+    int factorial(int n) {
+        if (n <= 1) return 1;
+        return n * factorial(n - 1);
+    }
+}
+
+// Rust functions
+@lang rust {
+    fn safe_division(a: f64, b: f64) -> f64 {
+        if b != 0.0 {
+            a / b
+        } else {
+            0.0
+        }
+    }
+    
+    fn count_characters(text: &str) -> usize {
+        text.len()
+    }
+    
+    fn is_even(number: i32) -> bool {
+        number % 2 == 0
+    }
+}
+
+// Main demonstration
+println("📊 Language Capabilities Demo:")
+println("")
+
+let user_name = "Developer"
+let num1 = 10
+let num2 = 5
+
+println("👤 User:", user_name)
+println("🔢 Sample numbers:", num1, "and", num2)
+println("")
+
+println("🐍 Python functions available:")
+println("  • greet(name) - Personal greeting")
+println("  • calculate_area(length, width) - Area calculation") 
+println("  • process_list(numbers) - List processing")
+println("")
+
+println("🌐 JavaScript functions available:")
+println("  • welcome(name) - User welcome message")
+println("  • multiply_numbers(a, b) - Number multiplication")
+println("  • create_message(user, action) - Message creation")
+println("")
+
+println("⚡ C functions available:")
+println("  • add_integers(a, b) - Fast integer addition")
+println("  • calculate_circle_area(radius) - Circle geometry")
+println("  • factorial(n) - Recursive calculations")
+println("")
+
+println("🦀 Rust functions available:")
+println("  • safe_division(a, b) - Memory-safe division")
+println("  • count_characters(text) - String analysis")
+println("  • is_even(number) - Number checking")
+println("")
+
+println("✅ All language blocks compiled successfully!")
+println("🎯 Each language provides specialized functions")
+println("🚀 Ready for cross-language integration!")
+println("")
+
+// Sample calculations
+let sum = num1 + num2
+let product = num1 * num2
+let difference = num1 - num2
+
+println("📈 Basic calculations:")
+println("Sum:", sum)
+println("Product:", product)
+println("Difference:", difference)
+println("")
+
+println("🌟 Multi-language development made simple with Utopia!") 

@@ -238,12 +238,7 @@ impl<'a> Lexer<'a> {
                     self.add_token(TokenKind::Or, start, "||".to_string());
                 }
                 
-                ':' if self.peek_ahead() == Some(':') => {
-                    let start = self.current_span();
-                    self.advance(); // consume ':'
-                    self.advance(); // consume ':'
-                    self.add_token(TokenKind::DoubleColon, start, "::".to_string());
-                }
+
                 
                 '-' if self.peek_ahead() == Some('>') => {
                     let start = self.current_span();
@@ -284,7 +279,17 @@ impl<'a> Lexer<'a> {
                 ']' => self.single_char_token(TokenKind::RightBracket),
                 ',' => self.single_char_token(TokenKind::Comma),
                 ';' => self.single_char_token(TokenKind::Semicolon),
-                ':' => self.single_char_token(TokenKind::Colon),
+                ':' => {
+                    // Check for double colon first
+                    if self.peek_ahead() == Some(':') {
+                        let start = self.current_span();
+                        self.advance(); // consume first ':'
+                        self.advance(); // consume second ':'
+                        self.add_token(TokenKind::DoubleColon, start, "::".to_string());
+                    } else {
+                        self.single_char_token(TokenKind::Colon);
+                    }
+                }
                 '.' => self.single_char_token(TokenKind::Dot),
                 
                 // @ symbol (language directive)

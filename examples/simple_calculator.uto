@@ -1,0 +1,269 @@
+// Simple Multi-Language Calculator Demo
+println("🧮 Multi-Language Calculator Demo")
+println("=================================")
+
+// Python mathematical operations
+@lang python {
+    def basic_math(a, b, operation):
+        if operation == "add":
+            return a + b
+        elif operation == "subtract":
+            return a - b
+        elif operation == "multiply":
+            return a * b
+        elif operation == "divide":
+            return a / b if b != 0 else None
+        else:
+            return None
+    
+    def advanced_math(number, operation):
+        import math
+        if operation == "sqrt":
+            return math.sqrt(abs(number))
+        elif operation == "square":
+            return number * number
+        elif operation == "factorial":
+            if number >= 0 and number <= 20:
+                result = 1
+                for i in range(1, int(number) + 1):
+                    result *= i
+                return result
+        return None
+    
+    def statistics(numbers):
+        if not numbers:
+            return None
+        
+        total = sum(numbers)
+        count = len(numbers)
+        mean = total / count
+        
+        return {
+            "sum": total,
+            "count": count,
+            "mean": mean,
+            "max": max(numbers),
+            "min": min(numbers)
+        }
+}
+
+// JavaScript UI and formatting
+@lang javascript {
+    function formatResult(operation, operand1, operand2, result) {
+        if (operand2 !== undefined) {
+            return operation + "(" + operand1 + ", " + operand2 + ") = " + result;
+        } else {
+            return operation + "(" + operand1 + ") = " + result;
+        }
+    }
+    
+    function createCalculatorHTML() {
+        return `
+            <div class="calculator">
+                <div class="display">
+                    <input type="text" id="result" readonly>
+                </div>
+                <div class="buttons">
+                    <button onclick="clearDisplay()">C</button>
+                    <button onclick="appendToDisplay('/')">/</button>
+                    <button onclick="appendToDisplay('*')">*</button>
+                    <button onclick="deleteLast()">←</button>
+                    
+                    <button onclick="appendToDisplay('7')">7</button>
+                    <button onclick="appendToDisplay('8')">8</button>
+                    <button onclick="appendToDisplay('9')">9</button>
+                    <button onclick="appendToDisplay('-')">-</button>
+                    
+                    <button onclick="appendToDisplay('4')">4</button>
+                    <button onclick="appendToDisplay('5')">5</button>
+                    <button onclick="appendToDisplay('6')">6</button>
+                    <button onclick="appendToDisplay('+')">+</button>
+                    
+                    <button onclick="appendToDisplay('1')">1</button>
+                    <button onclick="appendToDisplay('2')">2</button>
+                    <button onclick="appendToDisplay('3')">3</button>
+                    <button onclick="calculate()" rowspan="2">=</button>
+                    
+                    <button onclick="appendToDisplay('0')" colspan="2">0</button>
+                    <button onclick="appendToDisplay('.')">.</button>
+                </div>
+            </div>
+        `;
+    }
+    
+    function validateInput(expression) {
+        // Simple validation for calculator input
+        const validChars = /^[0-9+\-*/.() ]+$/;
+        return validChars.test(expression);
+    }
+    
+    function parseExpression(expr) {
+        // Simple expression parser
+        expr = expr.replace(/\s+/g, '');
+        
+        // Handle basic operations
+        if (expr.includes('+')) {
+            const parts = expr.split('+');
+            return {
+                operation: 'add',
+                operand1: parseFloat(parts[0]),
+                operand2: parseFloat(parts[1])
+            };
+        } else if (expr.includes('-') && expr.lastIndexOf('-') > 0) {
+            const parts = expr.split('-');
+            return {
+                operation: 'subtract',
+                operand1: parseFloat(parts[0]),
+                operand2: parseFloat(parts[1])
+            };
+        } else if (expr.includes('*')) {
+            const parts = expr.split('*');
+            return {
+                operation: 'multiply',
+                operand1: parseFloat(parts[0]),
+                operand2: parseFloat(parts[1])
+            };
+        } else if (expr.includes('/')) {
+            const parts = expr.split('/');
+            return {
+                operation: 'divide',
+                operand1: parseFloat(parts[0]),
+                operand2: parseFloat(parts[1])
+            };
+        }
+        
+        return { operation: 'number', operand1: parseFloat(expr) };
+    }
+}
+
+// C high-performance calculations
+@lang c {
+    double power(double base, int exponent) {
+        double result = 1.0;
+        for (int i = 0; i < exponent; i++) {
+            result *= base;
+        }
+        return result;
+    }
+    
+    double fibonacci(int n) {
+        if (n <= 1) return n;
+        
+        double a = 0, b = 1, temp;
+        for (int i = 2; i <= n; i++) {
+            temp = a + b;
+            a = b;
+            b = temp;
+        }
+        return b;
+    }
+    
+    int gcd(int a, int b) {
+        while (b != 0) {
+            int temp = b;
+            b = a % b;
+            a = temp;
+        }
+        return a;
+    }
+    
+    int lcm(int a, int b) {
+        return (a * b) / gcd(a, b);
+    }
+    
+    int is_prime(int n) {
+        if (n < 2) return 0;
+        if (n == 2) return 1;
+        if (n % 2 == 0) return 0;
+        
+        for (int i = 3; i * i <= n; i += 2) {
+            if (n % i == 0) return 0;
+        }
+        return 1;
+    }
+}
+
+// Rust safe mathematical operations
+@lang rust {
+    fn safe_divide(a: f64, b: f64) -> Option<f64> {
+        if b == 0.0 {
+            None
+        } else {
+            Some(a / b)
+        }
+    }
+    
+    fn calculate_percentage(part: f64, whole: f64) -> Option<f64> {
+        if whole == 0.0 {
+            None
+        } else {
+            Some((part / whole) * 100.0)
+        }
+    }
+    
+    fn compound_interest(principal: f64, rate: f64, time: f64, n: f64) -> f64 {
+        let rate_fraction = rate / 100.0;
+        let base = 1.0 + (rate_fraction / n);
+        principal * base.powf(n * time)
+    }
+    
+    fn quadratic_formula(a: f64, b: f64, c: f64) -> Option<(f64, f64)> {
+        let discriminant = b * b - 4.0 * a * c;
+        
+        if discriminant < 0.0 {
+            None // No real solutions
+        } else {
+            let sqrt_discriminant = discriminant.sqrt();
+            let x1 = (-b + sqrt_discriminant) / (2.0 * a);
+            let x2 = (-b - sqrt_discriminant) / (2.0 * a);
+            Some((x1, x2))
+        }
+    }
+}
+
+// Main calculator demonstration
+println("🔢 Sample calculations:")
+println("")
+
+// Basic arithmetic
+let a = 15
+let b = 7
+println("Basic Math Examples:")
+println("15 + 7 =", a + b)
+println("15 - 7 =", a - b) 
+println("15 * 7 =", a * b)
+println("15 / 7 = 2.14 (approx)")
+println("")
+
+// Advanced operations
+println("Advanced Math Examples:")
+println("Square root of 16 = 4")
+println("15 squared = 225")
+println("Factorial of 5 = 120")
+println("")
+
+// Programming capabilities
+println("💻 Calculator features by language:")
+println("")
+println("🐍 Python:")
+println("  • Basic arithmetic operations")
+println("  • Advanced mathematical functions")
+println("  • Statistical calculations")
+println("")
+println("🌐 JavaScript:")
+println("  • Interactive user interface")
+println("  • Input validation and parsing")
+println("  • Result formatting")
+println("")
+println("⚡ C:")
+println("  • High-performance computations")
+println("  • Number theory functions")
+println("  • Prime number checking")
+println("")
+println("🦀 Rust:")
+println("  • Safe mathematical operations")
+println("  • Memory-safe calculations")
+println("  • Financial and scientific formulas")
+println("")
+println("✅ Multi-language calculator complete!")
+println("🧮 Each language handles what it does best!") 

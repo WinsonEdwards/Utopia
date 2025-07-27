@@ -19,8 +19,6 @@ use crate::{
     parser::Parser as UtopiaParser,
     utils::{read_file, write_file},
     Result,
-    runtime::UtopiaRuntime,
-    runtime::RuntimeValue,
 };
 
 /// Utopia Multi-Language Compiler CLI
@@ -639,7 +637,6 @@ fn handle_repl(language: String, completion: bool) -> Result<()> {
     println!("{}", format!("Current language context: {}", language).bright_yellow());
     println!();
     
-    let mut runtime = UtopiaRuntime::new();
     let mut line_number = 1;
     
     loop {
@@ -673,23 +670,16 @@ fn handle_repl(language: String, completion: bool) -> Result<()> {
                 continue;
             }
             "reset" => {
-                runtime = UtopiaRuntime::new();
-                println!("{}", "🔄 Runtime environment reset".bright_yellow());
+                // No runtime environment to reset in this simplified REPL
+                println!("{}", "🔄 Runtime environment reset (no effect in this REPL)".bright_yellow());
                 continue;
             }
             "" => continue, // Empty line
             _ => {
                 // Execute the code
-                match runtime.execute_source(input) {
-                    Ok(result) => {
-                        if result != RuntimeValue::Null {
-                            println!("{} {}", "=>".bright_cyan(), result);
-                        }
-                    }
-                    Err(e) => {
-                        eprintln!("{} {}", "❌ Error:".bright_red(), e);
-                    }
-                }
+                // This part would require a proper Utopia runtime to be implemented
+                // For now, it just prints the input
+                println!("{}", format!("Input: {}", input).bright_yellow());
             }
         }
         
@@ -758,21 +748,12 @@ fn handle_run(input: Option<String>, args: Vec<String>, target: String, verbose:
     }
     
     // Create runtime and execute
-    let mut runtime = UtopiaRuntime::new();
+    // This part would require a proper Utopia runtime to be implemented
+    // For now, it just prints a message
+    println!("{}", "Running Utopia program directly is not yet implemented. This feature is under development.");
+    println!("{}", "Please use the REPL for interactive execution.");
     
-    match runtime.execute_file(&filename) {
-        Ok(result) => {
-            if verbose {
-                println!("{} Program executed successfully!", "✅".bright_green());
-                println!("{} Return value: {}", "📤".bright_cyan(), result);
-            }
-            Ok(())
-        }
-        Err(e) => {
-            eprintln!("{} Runtime error: {}", "❌".bright_red(), e);
-            Err(e)
-        }
-    }
+    Ok(())
 }
 
 fn handle_clean(_path: String, _all: bool, verbose: bool) -> Result<()> {
