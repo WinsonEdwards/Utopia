@@ -292,14 +292,16 @@ impl Parser {
     }
 
     fn parse_parameter(&mut self) -> Result<Parameter> {
-        // Get parameter name
-        let name = if let TokenKind::Identifier(name) = &self.current_token().kind {
+        // Get parameter name and span
+        let name_token = self.current_token();
+        let name = if let TokenKind::Identifier(name) = &name_token.kind {
             let param_name = name.clone();
             self.advance();
             param_name
         } else {
             return Err("Expected parameter name".into());
         };
+        let span = name_token.span;
         
         // Optional type annotation
         let param_type = if self.check(&TokenKind::Colon) {
@@ -321,6 +323,7 @@ impl Parser {
             name,
             param_type,
             default_value,
+            span,
         })
     }
 

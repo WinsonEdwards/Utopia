@@ -55,7 +55,7 @@ pub mod lexer;
 pub mod optimizer;
 pub mod parser;
 pub mod reverse;
-pub mod runtime;
+// pub mod runtime; // TODO: Implement runtime module
 pub mod types;
 pub mod utils;
 
@@ -69,7 +69,7 @@ pub use lexer::*;
 pub use optimizer::*;
 pub use parser::*;
 pub use reverse::*;
-pub use runtime::*;
+// pub use runtime::*; // TODO: Implement runtime module
 pub use types::*;
 
 /// Result type used throughout the compiler
