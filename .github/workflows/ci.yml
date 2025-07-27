@@ -28,7 +28,7 @@ jobs:
         cd utopia-rs
         cargo test
         
-    - name: Run Language Tests
+    - name: Run Integration Tests
       run: |
         chmod +x run_macos_tests.sh
         ./run_macos_tests.sh
