@@ -274,7 +274,7 @@ impl PythonTransformer {
                     .map(|arg| self.generate_expression(arg))
                     .collect();
                 let args_str = args?.join(", ");
-                Ok(format!("cross_call('{}', '{}', [{}])", language, function, args_str))
+                Ok(format!("utopia_runtime.call_{}('{}', [{}])", language, function, args_str))
             }
             Expression::Assignment { target, value, .. } => {
                 let target_str = self.generate_expression(target)?;

@@ -1,0 +1,8 @@
+// Basic test
+println("Hello from Utopia")
+
+let x = 42
+let y = 10
+let sum = x + y
+
+println("Sum:", sum) 

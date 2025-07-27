@@ -1,0 +1,56 @@
+// 50+ Language Showcase for Utopia Compiler
+// This file compiles to ALL supported languages!
+
+println("🌟 Utopia Multi-Language Showcase")
+println("Supporting 50+ programming languages!")
+
+// Core data processing
+let numbers = [1, 2, 3, 4, 5, 10, 15, 20]
+let total = 0
+
+for (let i = 0; i < numbers.length; i++) {
+    total = total + numbers[i]
+}
+
+let average = total / numbers.length
+let doubled = average * 2
+
+println("📊 Processing", numbers.length, "numbers")
+println("📈 Total sum:", total)
+println("📉 Average:", average)
+println("✖️ Doubled:", doubled)
+
+// String manipulation
+let greeting = "Hello"
+let target = "Multi-Language World"
+let message = greeting + " " + target + "!"
+
+println("💬 Message:", message)
+
+// Conditional logic
+if (total > 50) {
+    println("✅ Large dataset processed successfully!")
+} else {
+    println("ℹ️ Small dataset processed")
+}
+
+// Function demonstration
+function calculateFactorial(n) {
+    if (n <= 1) {
+        return 1
+    }
+    return n * calculateFactorial(n - 1)
+}
+
+let fact5 = calculateFactorial(5)
+println("🧮 Factorial(5):", fact5)
+
+// Loop demonstration
+let countdown = 5
+while (countdown > 0) {
+    println("⏰ Countdown:", countdown)
+    countdown = countdown - 1
+}
+
+println("🎉 Utopia compilation demonstration complete!")
+println("🚀 This code compiles to 50+ different languages!") 

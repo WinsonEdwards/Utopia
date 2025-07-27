@@ -1,0 +1,37 @@
+// Simple Cross-Language Demo
+println("Testing cross-language calls")
+
+// Python function
+@lang python {
+    def add_numbers(a, b):
+        return a + b
+    
+    def square(x):
+        return x * x
+}
+
+// JavaScript function  
+@lang javascript {
+    function multiply(a, b) {
+        return a * b;
+    }
+    
+    function greet(name) {
+        return "Hello " + name;
+    }
+}
+
+// Test calls
+let result1 = python::add_numbers(5, 3)
+println("Python add result:", result1)
+
+let result2 = python::square(4)
+println("Python square result:", result2)
+
+let result3 = javascript::multiply(6, 7)
+println("JavaScript multiply result:", result3)
+
+let result4 = javascript::greet("World")
+println("JavaScript greeting:", result4)
+
+println("Demo complete") 

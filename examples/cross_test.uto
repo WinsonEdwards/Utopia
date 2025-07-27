@@ -1,0 +1,10 @@
+// Cross-language test
+println("Testing cross calls")
+
+@lang python {
+    def add(a, b):
+        return a + b
+}
+
+let result = python::add(3, 4)
+println("Result:", result) 

@@ -1,0 +1,58 @@
+// Cross-Language Integration Demo
+// Python and JavaScript working together!
+
+println("Starting Cross-Language Demo")
+
+// Python block - Data processing
+@lang python {
+    def process_data(numbers):
+        total = sum(numbers)
+        average = total / len(numbers) if numbers else 0
+        return {
+            'total': total,
+            'average': average,
+            'max': max(numbers) if numbers else 0,
+            'min': min(numbers) if numbers else 0
+        }
+    
+    def fibonacci(n):
+        if n <= 1:
+            return n
+        return fibonacci(n-1) + fibonacci(n-2)
+}
+
+// JavaScript block - String formatting
+@lang javascript {
+    function formatReport(stats) {
+        return "Data Analysis Report: Total=" + stats.total + " Average=" + stats.average;
+    }
+    
+    function greetUser(name) {
+        return "Hello " + name + "! Welcome to Utopia!";
+    }
+}
+
+// Main program demonstrating cross-language calls
+println("Calling Python functions:")
+
+// Call Python data processing function
+let data = [10, 20, 30, 40, 50]
+let stats = python::process_data(data)
+println("Statistics:", stats)
+
+// Call Python fibonacci function  
+let fib_result = python::fibonacci(8)
+println("Fibonacci(8):", fib_result)
+
+println("Calling JavaScript functions:")
+
+// Call JavaScript formatting function
+let report = javascript::formatReport(stats)
+println("Formatted report:")
+println(report)
+
+// Call JavaScript greeting function
+let greeting = javascript::greetUser("Developer")
+println(greeting)
+
+println("Cross-Language Demo Complete!") 
