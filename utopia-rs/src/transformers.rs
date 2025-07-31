@@ -326,7 +326,8 @@ impl Transformer for JavaScriptTransformer {
         // Process language blocks
         for block in &program.language_blocks {
             if (block.language == "javascript" || block.language == "js") ||
-               (self.typescript && (block.language == "typescript" || block.language == "ts")) {
+               (self.typescript && (block.language == "typescript" || block.language == "ts")) ||
+               block.language == "main" {
                 output.push_str(&self.generate_js_block(block)?);
             } else {
                 output.push_str(&format!("// Cross-language block: {}\n", block.language));
@@ -360,6 +361,11 @@ impl JavaScriptTransformer {
         for function in &block.functions {
             output.push_str(&self.generate_function(function)?);
             output.push('\n');
+        }
+        
+        // Handle statements in the block
+        for statement in &block.statements {
+            output.push_str(&self.generate_statement(statement)?);
         }
         
         Ok(output)
@@ -426,6 +432,10 @@ impl JavaScriptTransformer {
                     Ok("return;\n".to_string())
                 }
             }
+            Statement::Expression { expression, .. } => {
+                let expr_str = self.generate_expression(expression)?;
+                Ok(format!("{};\n", expr_str))
+            }
             _ => Ok("// Unsupported statement\n".to_string()),
         }
     }
@@ -460,6 +470,20 @@ impl JavaScriptTransformer {
                     BinaryOperator::Or => "||",
                 };
                 Ok(format!("{} {} {}", left_str, op_str, right_str))
+            }
+            Expression::Call { callee, arguments, .. } => {
+                let callee_str = self.generate_expression(callee)?;
+                let mut args = Vec::new();
+                for arg in arguments {
+                    args.push(self.generate_expression(arg)?);
+                }
+                
+                // Handle special functions
+                if callee_str == "println" {
+                    Ok(format!("console.log({})", args.join(", ")))
+                } else {
+                    Ok(format!("{}({})", callee_str, args.join(", ")))
+                }
             }
             _ => Ok("undefined  /* Unsupported expression */".to_string()),
         }
@@ -552,7 +576,7 @@ impl Transformer for CTransformer {
         
         // Function declarations
         for block in &program.language_blocks {
-            if block.language == "c" {
+            if block.language == "c" || block.language == "main" {
                 for function in &block.functions {
                     output.push_str(&self.generate_function_declaration(function)?);
                 }
@@ -563,20 +587,18 @@ impl Transformer for CTransformer {
         
         // Function definitions
         for block in &program.language_blocks {
-            if block.language == "c" {
+            if block.language == "c" || block.language == "main" {
                 for function in &block.functions {
                     output.push_str(&self.generate_function_definition(function)?);
+                }
+                // Handle statements in main blocks
+                if block.language == "main" {
+                    output.push_str(&self.generate_main_statements(block)?);
                 }
             }
         }
         
-        // Main function if not present
-        if !program.language_blocks.iter().any(|b| b.functions.iter().any(|f| f.name == "main")) {
-            output.push_str("int main() {\n");
-            output.push_str("    printf(\"Hello from Utopia!\\n\");\n");
-            output.push_str("    return 0;\n");
-            output.push_str("}\n");
-        }
+        // Main function is generated in generate_c_functions when processing @lang main blocks
         
         Ok(output)
     }
@@ -639,6 +661,112 @@ impl CTransformer {
         
         output.push_str("}\n\n");
         Ok(output)
+    }
+    
+    fn generate_main_statements(&self, block: &LanguageBlock) -> Result<String> {
+        let mut output = String::new();
+        
+        if !block.statements.is_empty() {
+            output.push_str("int main() {\n");
+            for statement in &block.statements {
+                output.push_str("    ");
+                output.push_str(&self.generate_statement(statement)?);
+            }
+            output.push_str("    return 0;\n");
+            output.push_str("}\n");
+        }
+        
+        Ok(output)
+    }
+    
+    fn generate_statement(&self, statement: &Statement) -> Result<String> {
+        match statement {
+            Statement::Expression { expression, .. } => {
+                let expr_str = self.generate_expression(expression)?;
+                Ok(format!("{};\n", expr_str))
+            }
+            Statement::VariableDeclaration { name, value, .. } => {
+                if let Some(value) = value {
+                    let value_str = self.generate_expression(value)?;
+                    // Determine type based on the value
+                    let var_type = match value {
+                        Expression::Literal { value: LiteralValue::String(_), .. } => "char*",
+                        Expression::Literal { value: LiteralValue::Boolean(_), .. } => "bool",
+                        Expression::Literal { value: LiteralValue::Number(_), .. } => "double",
+                        _ => "double", // default fallback
+                    };
+                    Ok(format!("{} {} = {};\n", var_type, name, value_str))
+                } else {
+                    Ok(format!("double {};\n", name))
+                }
+            }
+            _ => Ok("// Unsupported statement\n".to_string()),
+        }
+    }
+    
+    fn generate_expression(&self, expression: &Expression) -> Result<String> {
+        match expression {
+            Expression::Literal { value, .. } => {
+                match value {
+                    LiteralValue::String(s) => Ok(format!("\"{}\"", s)),
+                    LiteralValue::Number(n) => Ok(n.to_string()),
+                    LiteralValue::Boolean(b) => Ok(if *b { "1".to_string() } else { "0".to_string() }),
+                    LiteralValue::Null => Ok("0".to_string()),
+                }
+            }
+            Expression::Identifier { name, .. } => Ok(name.clone()),
+            Expression::Call { callee, arguments, .. } => {
+                let callee_str = self.generate_expression(callee)?;
+                let mut args = Vec::new();
+                for arg in arguments {
+                    args.push(self.generate_expression(arg)?);
+                }
+                
+                // Handle special functions
+                if callee_str == "println" {
+                    if args.is_empty() {
+                        Ok("printf(\"\\n\")".to_string())
+                    } else {
+                        // Generate format string based on argument types
+                        let mut format_specs = Vec::new();
+                        for arg in arguments {
+                            match arg {
+                                Expression::Literal { value: LiteralValue::String(_), .. } => format_specs.push("%s"),
+                                Expression::Literal { value: LiteralValue::Number(_), .. } => format_specs.push("%.0f"),
+                                Expression::Literal { value: LiteralValue::Boolean(_), .. } => format_specs.push("%d"),
+                                Expression::Identifier { .. } => format_specs.push("%s"), // assume string for now
+                                _ => format_specs.push("%s"),
+                            }
+                        }
+                        let format_str = format_specs.join(" ");
+                        Ok(format!("printf(\"{}\\n\", {})", format_str, args.join(", ")))
+                    }
+                } else {
+                    Ok(format!("{}({})", callee_str, args.join(", ")))
+                }
+            }
+            Expression::Binary { left, operator, right, .. } => {
+                let left_str = self.generate_expression(left)?;
+                let op_str = match operator {
+                    BinaryOperator::Add => "+",
+                    BinaryOperator::Subtract => "-",
+                    BinaryOperator::Multiply => "*",
+                    BinaryOperator::Divide => "/",
+                    BinaryOperator::Equal => "==",
+                    BinaryOperator::NotEqual => "!=",
+                    BinaryOperator::Less => "<",
+                    BinaryOperator::Greater => ">",
+                    BinaryOperator::LessEqual => "<=",
+                    BinaryOperator::GreaterEqual => ">=",
+                    BinaryOperator::And => "&&",
+                    BinaryOperator::Or => "||",
+                    _ => "/* unsupported op */",
+                };
+                let right_str = self.generate_expression(right)?;
+                Ok(format!("{} {} {}", left_str, op_str, right_str))
+            }
+            _ => Ok("/* unsupported expression */".to_string()),
+        }
     }
     
     fn convert_type(&self, utopia_type: Option<&crate::types::Type>) -> String {
@@ -972,7 +1100,7 @@ impl Transformer for RustTransformer {
         
         // Process language blocks
         for block in &program.language_blocks {
-            if block.language == "rust" {
+            if block.language == "rust" || block.language == "main" {
                 output.push_str(&self.generate_rust_block(block)?);
             } else {
                 output.push_str(&format!("// Cross-language block: {}\n", block.language));
@@ -980,12 +1108,7 @@ impl Transformer for RustTransformer {
             }
         }
         
-        // Main function if not present
-        if !program.language_blocks.iter().any(|b| b.functions.iter().any(|f| f.name == "main")) {
-            output.push_str("fn main() {\n");
-            output.push_str("    println!(\"Hello from Utopia Rust!\");\n");
-            output.push_str("}\n");
-        }
+        // Main function is generated in generate_rust_function when processing @lang main blocks
         
         Ok(output)
     }
@@ -1010,6 +1133,16 @@ impl RustTransformer {
         for function in &block.functions {
             output.push_str(&self.generate_function(function)?);
             output.push('\n');
+        }
+        
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("fn main() {\n");
+            for statement in &block.statements {
+                output.push_str("    ");
+                output.push_str(&self.generate_statement(statement)?);
+            }
+            output.push_str("}\n");
         }
         
         Ok(output)
@@ -1081,6 +1214,86 @@ impl RustTransformer {
         Ok(output)
     }
     
+    fn generate_statement(&self, statement: &Statement) -> Result<String> {
+        match statement {
+            Statement::Expression { expression, .. } => {
+                let expr_str = self.generate_expression(expression)?;
+                Ok(format!("{};\n", expr_str))
+            }
+            Statement::VariableDeclaration { name, value, .. } => {
+                if let Some(value) = value {
+                    let value_str = self.generate_expression(value)?;
+                    Ok(format!("let {} = {};\n", name, value_str))
+                } else {
+                    Ok(format!("let {};\n", name))
+                }
+            }
+            Statement::Return { value, .. } => {
+                if let Some(value) = value {
+                    Ok(format!("return {};\n", self.generate_expression(value)?))
+                } else {
+                    Ok("return;\n".to_string())
+                }
+            }
+            _ => Ok("// Unsupported statement\n".to_string()),
+        }
+    }
+    
+    fn generate_expression(&self, expression: &Expression) -> Result<String> {
+        match expression {
+            Expression::Literal { value, .. } => {
+                match value {
+                    LiteralValue::String(s) => Ok(format!("\"{}\"", s)),
+                    LiteralValue::Number(n) => Ok(n.to_string()),
+                    LiteralValue::Boolean(b) => Ok(b.to_string()),
+                    LiteralValue::Null => Ok("None".to_string()),
+                }
+            }
+            Expression::Identifier { name, .. } => Ok(name.clone()),
+            Expression::Call { callee, arguments, .. } => {
+                let callee_str = self.generate_expression(callee)?;
+                let mut args = Vec::new();
+                for arg in arguments {
+                    args.push(self.generate_expression(arg)?);
+                }
+                
+                // Handle special functions
+                if callee_str == "println" {
+                    if arguments.is_empty() {
+                        Ok("println!()".to_string())
+                    } else {
+                        // Generate proper format string with {} for each argument
+                        let format_specs = arguments.iter().map(|_| "{}").collect::<Vec<_>>().join(" ");
+                        Ok(format!("println!(\"{}\", {})", format_specs, args.join(", ")))
+                    }
+                } else {
+                    Ok(format!("{}({})", callee_str, args.join(", ")))
+                }
+            }
+            Expression::Binary { left, operator, right, .. } => {
+                let left_str = self.generate_expression(left)?;
+                let op_str = match operator {
+                    BinaryOperator::Add => "+",
+                    BinaryOperator::Subtract => "-",
+                    BinaryOperator::Multiply => "*",
+                    BinaryOperator::Divide => "/",
+                    BinaryOperator::Equal => "==",
+                    BinaryOperator::NotEqual => "!=",
+                    BinaryOperator::Less => "<",
+                    BinaryOperator::Greater => ">",
+                    BinaryOperator::LessEqual => "<=",
+                    BinaryOperator::GreaterEqual => ">=",
+                    BinaryOperator::And => "&&",
+                    BinaryOperator::Or => "||",
+                    _ => "/* unsupported op */",
+                };
+                let right_str = self.generate_expression(right)?;
+                Ok(format!("{} {} {}", left_str, op_str, right_str))
+            }
+            _ => Ok("/* unsupported expression */".to_string()),
+        }
+    }
+    
     fn convert_type(&self, utopia_type: Option<&crate::types::Type>) -> String {
         match utopia_type {
             Some(crate::types::Type::Number) => "f64".to_string(),
@@ -1121,19 +1334,14 @@ impl Transformer for GoTransformer {
         
         // Process language blocks
         for block in &program.language_blocks {
-            if block.language == "go" {
+            if block.language == "go" || block.language == "main" {
                 output.push_str(&self.generate_go_block(block)?);
             } else {
                 output.push_str(&format!("// Cross-language block: {}\n", block.language));
             }
         }
         
-        // Main function if not present
-        if !program.language_blocks.iter().any(|b| b.functions.iter().any(|f| f.name == "main")) {
-            output.push_str("func main() {\n");
-            output.push_str("    fmt.Println(\"Hello from Utopia Go!\")\n");
-            output.push_str("}\n");
-        }
+        // Main function is generated in generate_go_block when processing @lang main blocks
         
         Ok(output)
     }
@@ -1158,6 +1366,16 @@ impl GoTransformer {
         for function in &block.functions {
             output.push_str(&self.generate_function(function)?);
             output.push('\n');
+        }
+        
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("func main() {\n");
+            for statement in &block.statements {
+                output.push_str("    ");
+                output.push_str(&self.generate_statement(statement)?);
+            }
+            output.push_str("}\n");
         }
         
         Ok(output)
@@ -1200,6 +1418,80 @@ impl GoTransformer {
         
         output.push_str("}\n");
         Ok(output)
+    }
+    
+    fn generate_statement(&self, statement: &Statement) -> Result<String> {
+        match statement {
+            Statement::Expression { expression, .. } => {
+                let expr_str = self.generate_expression(expression)?;
+                Ok(format!("{}\n", expr_str))
+            }
+            Statement::VariableDeclaration { name, value, .. } => {
+                if let Some(value) = value {
+                    let value_str = self.generate_expression(value)?;
+                    Ok(format!("{} := {}\n", name, value_str))
+                } else {
+                    Ok(format!("var {}\n", name))
+                }
+            }
+            Statement::Return { value, .. } => {
+                if let Some(value) = value {
+                    Ok(format!("return {}\n", self.generate_expression(value)?))
+                } else {
+                    Ok("return\n".to_string())
+                }
+            }
+            _ => Ok("// Unsupported statement\n".to_string()),
+        }
+    }
+    
+    fn generate_expression(&self, expression: &Expression) -> Result<String> {
+        match expression {
+            Expression::Literal { value, .. } => {
+                match value {
+                    LiteralValue::String(s) => Ok(format!("\"{}\"", s)),
+                    LiteralValue::Number(n) => Ok(n.to_string()),
+                    LiteralValue::Boolean(b) => Ok(b.to_string()),
+                    LiteralValue::Null => Ok("nil".to_string()),
+                }
+            }
+            Expression::Identifier { name, .. } => Ok(name.clone()),
+            Expression::Call { callee, arguments, .. } => {
+                let callee_str = self.generate_expression(callee)?;
+                let mut args = Vec::new();
+                for arg in arguments {
+                    args.push(self.generate_expression(arg)?);
+                }
+                
+                // Handle special functions
+                if callee_str == "println" {
+                    Ok(format!("fmt.Println({})", args.join(", ")))
+                } else {
+                    Ok(format!("{}({})", callee_str, args.join(", ")))
+                }
+            }
+            Expression::Binary { left, operator, right, .. } => {
+                let left_str = self.generate_expression(left)?;
+                let op_str = match operator {
+                    BinaryOperator::Add => "+",
+                    BinaryOperator::Subtract => "-",
+                    BinaryOperator::Multiply => "*",
+                    BinaryOperator::Divide => "/",
+                    BinaryOperator::Equal => "==",
+                    BinaryOperator::NotEqual => "!=",
+                    BinaryOperator::Less => "<",
+                    BinaryOperator::Greater => ">",
+                    BinaryOperator::LessEqual => "<=",
+                    BinaryOperator::GreaterEqual => ">=",
+                    BinaryOperator::And => "&&",
+                    BinaryOperator::Or => "||",
+                    _ => "/* unsupported op */",
+                };
+                let right_str = self.generate_expression(right)?;
+                Ok(format!("{} {} {}", left_str, op_str, right_str))
+            }
+            _ => Ok("/* unsupported expression */".to_string()),
+        }
     }
     
     fn convert_type(&self, utopia_type: Option<&crate::types::Type>) -> String {
@@ -1247,19 +1539,14 @@ impl Transformer for JavaTransformer {
         
         // Process language blocks
         for block in &program.language_blocks {
-            if block.language == "java" {
+            if block.language == "java" || block.language == "main" {
                 output.push_str(&self.generate_java_block(block)?);
             } else {
                 output.push_str(&format!("    // Cross-language block: {}\n", block.language));
             }
         }
         
-        // Main method if not present
-        if !program.language_blocks.iter().any(|b| b.functions.iter().any(|f| f.name == "main")) {
-            output.push_str("    public static void main(String[] args) {\n");
-            output.push_str("        System.out.println(\"Hello from Utopia Java!\");\n");
-            output.push_str("    }\n");
-        }
+        // Main method is generated in generate_java_block when processing @lang main blocks
         
         output.push_str("}\n");
         Ok(output)
@@ -1285,6 +1572,16 @@ impl JavaTransformer {
         for function in &block.functions {
             output.push_str(&self.generate_function(function)?);
             output.push('\n');
+        }
+        
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("    public static void main(String[] args) {\n");
+            for statement in &block.statements {
+                output.push_str("        ");
+                output.push_str(&self.generate_statement(statement)?);
+            }
+            output.push_str("    }\n");
         }
         
         Ok(output)
@@ -1339,6 +1636,89 @@ impl JavaTransformer {
             Some(crate::types::Type::Array(_)) => "List<UtopiaValue>".to_string(),
             Some(crate::types::Type::Object(_)) => "Map<String, UtopiaValue>".to_string(),
             _ => "UtopiaValue".to_string(),
+        }
+    }
+    
+    fn generate_statement(&self, statement: &Statement) -> Result<String> {
+        match statement {
+            Statement::Expression { expression, .. } => {
+                let expr_str = self.generate_expression(expression)?;
+                Ok(format!("{};\n", expr_str))
+            }
+            Statement::VariableDeclaration { name, value, .. } => {
+                if let Some(value) = value {
+                    let value_str = self.generate_expression(value)?;
+                    Ok(format!("Object {} = {};\n", name, value_str))
+                } else {
+                    Ok(format!("Object {};\n", name))
+                }
+            }
+            Statement::Return { value, .. } => {
+                if let Some(value) = value {
+                    Ok(format!("return {};\n", self.generate_expression(value)?))
+                } else {
+                    Ok("return;\n".to_string())
+                }
+            }
+            _ => Ok("// Unsupported statement\n".to_string()),
+        }
+    }
+    
+    fn generate_expression(&self, expression: &Expression) -> Result<String> {
+        match expression {
+            Expression::Literal { value, .. } => {
+                match value {
+                    LiteralValue::String(s) => Ok(format!("\"{}\"", s)),
+                    LiteralValue::Number(n) => Ok(n.to_string()),
+                    LiteralValue::Boolean(b) => Ok(b.to_string()),
+                    LiteralValue::Null => Ok("null".to_string()),
+                }
+            }
+            Expression::Identifier { name, .. } => Ok(name.clone()),
+            Expression::Call { callee, arguments, .. } => {
+                let callee_str = self.generate_expression(callee)?;
+                let mut args = Vec::new();
+                for arg in arguments {
+                    args.push(self.generate_expression(arg)?);
+                }
+                
+                // Handle special functions
+                if callee_str == "println" {
+                    Ok(format!("System.out.println({})", args.join(" + \" \" + ")))
+                } else {
+                    Ok(format!("{}({})", callee_str, args.join(", ")))
+                }
+            }
+            Expression::Binary { left, operator, right, .. } => {
+                let left_str = self.generate_expression(left)?;
+                let right_str = self.generate_expression(right)?;
+                
+                match operator {
+                    BinaryOperator::Add => {
+                        // For Java, handle arithmetic properly by casting to numbers
+                        Ok(format!("((Number){}).doubleValue() + ((Number){}).doubleValue()", left_str, right_str))
+                    }
+                    BinaryOperator::Subtract => {
+                        Ok(format!("((Number){}).doubleValue() - ((Number){}).doubleValue()", left_str, right_str))
+                    }
+                    BinaryOperator::Multiply => {
+                        Ok(format!("((Number){}).doubleValue() * ((Number){}).doubleValue()", left_str, right_str))
+                    }
+                    BinaryOperator::Divide => {
+                        Ok(format!("((Number){}).doubleValue() / ((Number){}).doubleValue()", left_str, right_str))
+                    }
+                    BinaryOperator::Equal => Ok(format!("{}.equals({})", left_str, right_str)),
+                    BinaryOperator::NotEqual => Ok(format!("!{}.equals({})", left_str, right_str)),
+                    BinaryOperator::Less => Ok(format!("((Comparable){}).compareTo({}) < 0", left_str, right_str)),
+                    BinaryOperator::Greater => Ok(format!("((Comparable){}).compareTo({}) > 0", left_str, right_str)),
+                    BinaryOperator::LessEqual => Ok(format!("((Comparable){}).compareTo({}) <= 0", left_str, right_str)),
+                    BinaryOperator::GreaterEqual => Ok(format!("((Comparable){}).compareTo({}) >= 0", left_str, right_str)),
+                    BinaryOperator::And => Ok(format!("((Boolean){}) && ((Boolean){})", left_str, right_str)),
+                    BinaryOperator::Or => Ok(format!("((Boolean){}) || ((Boolean){})", left_str, right_str)),
+                    _ => Ok(format!("/* unsupported op: {} op {} */", left_str, right_str)),
+                }
+            }
+            _ => Ok("/* unsupported expression */".to_string()),
         }
     }
 }
@@ -1536,7 +1916,13 @@ impl CSharpTransformer {
                     .map(|arg| self.generate_expression(arg))
                     .collect();
                 let args_str = args?.join(", ");
-                Ok(format!("{}({})", callee_str, args_str))
+                
+                // Handle special functions
+                if callee_str == "println" {
+                    Ok(format!("Console.WriteLine({})", args_str))
+                } else {
+                    Ok(format!("{}({})", callee_str, args_str))
+                }
             }
             Expression::CrossCall { language, function, arguments, .. } => {
                 let args: Result<Vec<String>> = arguments.iter()
@@ -1859,6 +2245,15 @@ impl PerlTransformer {
             output.push('\n');
         }
         
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("# Main execution\n");
+            for statement in &block.statements {
+                output.push_str(&self.generate_statement(statement)?);
+                output.push('\n');
+            }
+        }
+        
         Ok(output)
     }
     
@@ -1967,7 +2362,13 @@ impl PerlTransformer {
                     .map(|arg| self.generate_expression(arg))
                     .collect();
                 let args_str = args?.join(", ");
-                Ok(format!("{}({})", callee_str, args_str))
+                
+                // Handle special functions
+                if callee_str == "println" {
+                    Ok(format!("print {}", args_str))
+                } else {
+                    Ok(format!("{}({})", callee_str, args_str))
+                }
             }
             Expression::CrossCall { language, function, arguments, .. } => {
                 let args: Result<Vec<String>> = arguments.iter()
@@ -2031,6 +2432,15 @@ impl PHPTransformer {
         for function in &block.functions {
             output.push_str(&self.generate_function(function)?);
             output.push('\n');
+        }
+        
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("// Main execution\n");
+            for statement in &block.statements {
+                output.push_str(&self.generate_statement(statement)?);
+                output.push('\n');
+            }
         }
         
         Ok(output)
@@ -2139,7 +2549,13 @@ impl PHPTransformer {
                     .map(|arg| self.generate_expression(arg))
                     .collect();
                 let args_str = args?.join(", ");
-                Ok(format!("{}({})", callee_str, args_str))
+                
+                // Handle special functions
+                if callee_str == "println" {
+                    Ok(format!("echo {}", args_str))
+                } else {
+                    Ok(format!("{}({})", callee_str, args_str))
+                }
             }
             Expression::CrossCall { language, function, arguments, .. } => {
                 let args: Result<Vec<String>> = arguments.iter()
@@ -3055,6 +3471,15 @@ impl SQLTransformer {
             output.push('\n');
         }
         
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("-- Main execution\n");
+            for statement in &block.statements {
+                output.push_str(&self.generate_statement(statement)?);
+                output.push('\n');
+            }
+        }
+        
         Ok(output)
     }
     
@@ -3291,6 +3716,15 @@ impl RTransformer {
             output.push('\n');
         }
         
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("# Main execution\n");
+            for statement in &block.statements {
+                output.push_str(&self.generate_statement(statement)?);
+                output.push('\n');
+            }
+        }
+        
         Ok(output)
     }
     
@@ -3412,7 +3846,13 @@ impl RTransformer {
                     .map(|arg| self.generate_expression(arg))
                     .collect();
                 let args_str = args?.join(", ");
-                Ok(format!("{}({})", callee_str, args_str))
+                
+                // Handle special functions for R
+                if callee_str == "println" {
+                    Ok(format!("cat({})", args_str))
+                } else {
+                    Ok(format!("{}({})", callee_str, args_str))
+                }
             }
             Expression::CrossCall { language, function, arguments, .. } => {
                 let args: Result<Vec<String>> = arguments.iter()
@@ -3475,6 +3915,15 @@ impl MatlabTransformer {
         for function in &block.functions {
             output.push_str(&self.generate_function(function)?);
             output.push('\n');
+        }
+        
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("% Main execution\n");
+            for statement in &block.statements {
+                output.push_str(&self.generate_statement(statement)?);
+                output.push('\n');
+            }
         }
         
         Ok(output)
@@ -3606,7 +4055,13 @@ impl MatlabTransformer {
                     .map(|arg| self.generate_expression(arg))
                     .collect();
                 let args_str = args?.join(", ");
-                Ok(format!("{}({})", callee_str, args_str))
+                
+                // Handle special functions for MATLAB
+                if callee_str == "println" {
+                    Ok(format!("disp({})", args_str))
+                } else {
+                    Ok(format!("{}({})", callee_str, args_str))
+                }
             }
             Expression::CrossCall { language, function, arguments, .. } => {
                 let args: Result<Vec<String>> = arguments.iter()
@@ -3688,6 +4143,17 @@ impl KotlinTransformer {
         for function in &block.functions {
             output.push_str(&self.generate_function(function)?);
             output.push('\n');
+        }
+        
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("fun main() {\n");
+            for statement in &block.statements {
+                output.push_str("    ");
+                output.push_str(&self.generate_statement(statement)?);
+                output.push('\n');
+            }
+            output.push_str("}\n");
         }
         
         Ok(output)
@@ -3823,7 +4289,13 @@ impl KotlinTransformer {
                     .map(|arg| self.generate_expression(arg))
                     .collect();
                 let args_str = args?.join(", ");
-                Ok(format!("{}({})", callee_str, args_str))
+                
+                // Handle special functions - Kotlin uses println natively
+                if callee_str == "println" {
+                    Ok(format!("println({})", args_str))
+                } else {
+                    Ok(format!("{}({})", callee_str, args_str))
+                }
             }
             Expression::CrossCall { language, function, arguments, .. } => {
                 let args: Result<Vec<String>> = arguments.iter()
@@ -3926,6 +4398,15 @@ impl SwiftTransformer {
         for function in &block.functions {
             output.push_str(&self.generate_function(function)?);
             output.push('\n');
+        }
+        
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("// Main execution\n");
+            for statement in &block.statements {
+                output.push_str(&self.generate_statement(statement)?);
+                output.push('\n');
+            }
         }
         
         Ok(output)
@@ -4061,7 +4542,13 @@ impl SwiftTransformer {
                     .map(|arg| self.generate_expression(arg))
                     .collect();
                 let args_str = args?.join(", ");
-                Ok(format!("{}({})", callee_str, args_str))
+                
+                // Handle special functions for Swift
+                if callee_str == "println" {
+                    Ok(format!("print({})", args_str))
+                } else {
+                    Ok(format!("{}({})", callee_str, args_str))
+                }
             }
             Expression::CrossCall { language, function, arguments, .. } => {
                 let args: Result<Vec<String>> = arguments.iter()
@@ -4367,6 +4854,15 @@ impl RubyTransformer {
             output.push('\n');
         }
         
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("# Main execution\n");
+            for statement in &block.statements {
+                output.push_str(&self.generate_statement(statement)?);
+                output.push('\n');
+            }
+        }
+        
         Ok(output)
     }
     
@@ -4492,7 +4988,13 @@ impl RubyTransformer {
                     .map(|arg| self.generate_expression(arg))
                     .collect();
                 let args_str = args?.join(", ");
-                Ok(format!("{}({})", callee_str, args_str))
+                
+                // Handle special functions
+                if callee_str == "println" {
+                    Ok(format!("puts {}", args_str))
+                } else {
+                    Ok(format!("{}({})", callee_str, args_str))
+                }
             }
             Expression::CrossCall { language, function, arguments, .. } => {
                 let args: Result<Vec<String>> = arguments.iter()
@@ -5052,6 +5554,17 @@ impl DartTransformer {
             output.push('\n');
         }
         
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("void main() {\n");
+            for statement in &block.statements {
+                output.push_str("  ");
+                output.push_str(&self.generate_statement(statement)?);
+                output.push_str(";\n");
+            }
+            output.push_str("}\n");
+        }
+        
         Ok(output)
     }
     
@@ -5176,7 +5689,13 @@ impl DartTransformer {
                     .map(|arg| self.generate_expression(arg))
                     .collect();
                 let args_str = args?.join(", ");
-                Ok(format!("{}({})", callee_str, args_str))
+                
+                // Handle special functions for Dart
+                if callee_str == "println" {
+                    Ok(format!("print({})", args_str))
+                } else {
+                    Ok(format!("{}({})", callee_str, args_str))
+                }
             }
             Expression::CrossCall { language, function, arguments, .. } => {
                 let args: Result<Vec<String>> = arguments.iter()
@@ -5276,6 +5795,15 @@ impl LuaTransformer {
         for function in &block.functions {
             output.push_str(&self.generate_function(function)?);
             output.push('\n');
+        }
+        
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("-- Main execution\n");
+            for statement in &block.statements {
+                output.push_str(&self.generate_statement(statement)?);
+                output.push('\n');
+            }
         }
         
         Ok(output)
@@ -5399,7 +5927,13 @@ impl LuaTransformer {
                     .map(|arg| self.generate_expression(arg))
                     .collect();
                 let args_str = args?.join(", ");
-                Ok(format!("{}({})", callee_str, args_str))
+                
+                // Handle special functions
+                if callee_str == "println" {
+                    Ok(format!("print({})", args_str))
+                } else {
+                    Ok(format!("{}({})", callee_str, args_str))
+                }
             }
             Expression::CrossCall { language, function, arguments, .. } => {
                 let args: Result<Vec<String>> = arguments.iter()
@@ -5482,6 +6016,17 @@ impl HaskellTransformer {
         for function in &block.functions {
             output.push_str(&self.generate_function(function)?);
             output.push('\n');
+        }
+        
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("main :: IO ()\n");
+            output.push_str("main = do\n");
+            for statement in &block.statements {
+                output.push_str("  ");
+                output.push_str(&self.generate_statement(statement)?);
+                output.push_str("\n");
+            }
         }
         
         Ok(output)
@@ -5605,7 +6150,15 @@ impl HaskellTransformer {
                     .map(|arg| self.generate_expression(arg))
                     .collect();
                 let args_str = args?.join(" ");
-                if args_str.is_empty() {
+                
+                // Handle special functions for Haskell
+                if callee_str == "println" {
+                    if args_str.is_empty() {
+                        Ok("putStrLn \"\"".to_string())
+                    } else {
+                        Ok(format!("putStrLn ({})", args_str))
+                    }
+                } else if args_str.is_empty() {
                     Ok(callee_str)
                 } else {
                     Ok(format!("({} {})", callee_str, args_str))
@@ -5954,6 +6507,17 @@ impl ScalaTransformer {
             output.push('\n');
         }
         
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("  def main(args: Array[String]): Unit = {\n");
+            for statement in &block.statements {
+                output.push_str("    ");
+                output.push_str(&self.generate_statement(statement)?);
+                output.push_str(";\n");
+            }
+            output.push_str("  }\n");
+        }
+        
         Ok(output)
     }
     
@@ -6158,6 +6722,17 @@ impl JuliaTransformer {
         for function in &block.functions {
             output.push_str(&self.generate_function(function)?);
             output.push('\n');
+        }
+        
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("function main()\n");
+            for statement in &block.statements {
+                output.push_str("    ");
+                output.push_str(&self.generate_statement(statement)?);
+                output.push_str("\n");
+            }
+            output.push_str("end\n\nmain()\n");
         }
         
         Ok(output)
@@ -6775,6 +7350,15 @@ impl NimTransformer {
             output.push('\n');
         }
         
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("# Main execution\n");
+            for statement in &block.statements {
+                output.push_str(&self.generate_statement(statement)?);
+                output.push('\n');
+            }
+        }
+        
         Ok(output)
     }
     
@@ -6972,6 +7556,15 @@ impl CrystalTransformer {
             output.push('\n');
         }
         
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("# Main execution\n");
+            for statement in &block.statements {
+                output.push_str(&self.generate_statement(statement)?);
+                output.push('\n');
+            }
+        }
+        
         Ok(output)
     }
     
@@ -7093,7 +7686,13 @@ impl CrystalTransformer {
                     .map(|arg| self.generate_expression(arg))
                     .collect();
                 let args_str = args?.join(", ");
-                Ok(format!("{}({})", callee_str, args_str))
+                
+                // Handle special functions for Crystal
+                if callee_str == "println" {
+                    Ok(format!("puts {}", args_str))
+                } else {
+                    Ok(format!("{}({})", callee_str, args_str))
+                }
             }
             Expression::CrossCall { language, function, arguments, .. } => {
                 let args: Result<Vec<String>> = arguments.iter()
@@ -7172,6 +7771,15 @@ impl ZigTransformer {
         for function in &block.functions {
             output.push_str(&self.generate_function(function)?);
             output.push('\n');
+        }
+        
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("// Main execution\n");
+            for statement in &block.statements {
+                output.push_str(&self.generate_statement(statement)?);
+                output.push('\n');
+            }
         }
         
         Ok(output)
@@ -7369,6 +7977,17 @@ impl ElixirTransformer {
         for function in &block.functions {
             output.push_str(&self.generate_function(function)?);
             output.push('\n');
+        }
+        
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("  def main do\n");
+            for statement in &block.statements {
+                output.push_str("    ");
+                output.push_str(&self.generate_statement(statement)?);
+                output.push_str("\n");
+            }
+            output.push_str("  end\nend\n\nUtopiaGenerated.main()\n");
         }
         
         Ok(output)
@@ -7573,6 +8192,15 @@ impl FSharpTransformer {
             output.push('\n');
         }
         
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("// Main execution\n");
+            for statement in &block.statements {
+                output.push_str(&self.generate_statement(statement)?);
+                output.push('\n');
+            }
+        }
+        
         Ok(output)
     }
     
@@ -7681,7 +8309,17 @@ impl FSharpTransformer {
                     .map(|arg| self.generate_expression(arg))
                     .collect();
                 let args_str = args?.join(" ");
-                if args_str.is_empty() {
+                
+                // Handle special functions for F#
+                if callee_str == "println" {
+                    if arguments.is_empty() {
+                        Ok("printfn \"\"".to_string())
+                    } else {
+                        // Use printfn with %A for each argument (F# generic formatter)
+                        let format_specs = arguments.iter().map(|_| "%A").collect::<Vec<_>>().join(" ");
+                        Ok(format!("printfn \"{}\" {}", format_specs, args_str))
+                    }
+                } else if args_str.is_empty() {
                     Ok(format!("{} ()", callee_str))
                 } else {
                     Ok(format!("{} {}", callee_str, args_str))
@@ -7763,6 +8401,17 @@ impl ClojureTransformer {
         for function in &block.functions {
             output.push_str(&self.generate_function(function)?);
             output.push('\n');
+        }
+        
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("(defn -main [& args]\n");
+            for statement in &block.statements {
+                output.push_str("  ");
+                output.push_str(&self.generate_statement(statement)?);
+                output.push('\n');
+            }
+            output.push_str(")\n\n(-main)\n");
         }
         
         Ok(output)
@@ -7949,6 +8598,15 @@ impl ErlangTransformer {
             output.push('\n');
         }
         
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("% Main execution\n");
+            for statement in &block.statements {
+                output.push_str(&self.generate_statement(statement)?);
+                output.push('\n');
+            }
+        }
+        
         Ok(output)
     }
     
@@ -8052,7 +8710,19 @@ impl ErlangTransformer {
                     .map(|arg| self.generate_expression(arg))
                     .collect();
                 let args_str = args?.join(", ");
-                Ok(format!("{}({})", callee_str, args_str))
+                
+                // Handle special functions for Erlang
+                if callee_str == "println" {
+                    if arguments.is_empty() {
+                        Ok("io:format(\"~n\")".to_string())
+                    } else {
+                        // Generate format string with ~p for each argument
+                        let format_specs = arguments.iter().map(|_| "~p").collect::<Vec<_>>().join(" ");
+                        Ok(format!("io:format(\"{}~n\", [{}])", format_specs, args_str))
+                    }
+                } else {
+                    Ok(format!("{}({})", callee_str, args_str))
+                }
             }
             Expression::CrossCall { language, function, arguments, .. } => {
                 let args: Result<Vec<String>> = arguments.iter()
@@ -8119,6 +8789,15 @@ impl OCamlTransformer {
         for function in &block.functions {
             output.push_str(&self.generate_function(function)?);
             output.push('\n');
+        }
+        
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str("(* Main execution *)\n");
+            for statement in &block.statements {
+                output.push_str(&self.generate_statement(statement)?);
+                output.push('\n');
+            }
         }
         
         Ok(output)
@@ -8282,6 +8961,15 @@ impl SchemeTransformer {
         for function in &block.functions {
             output.push_str(&self.generate_function(function)?);
             output.push('\n');
+        }
+        
+        // Handle main block statements
+        if block.language == "main" && !block.statements.is_empty() {
+            output.push_str(";; Main execution\n");
+            for statement in &block.statements {
+                output.push_str(&self.generate_statement(statement)?);
+                output.push('\n');
+            }
         }
         
         Ok(output)

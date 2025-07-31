@@ -9,4 +9,8 @@
     let y = 3;
     let sum = x + y;
     println("Sum of", x, "and", y, "is", sum);
-} 
+    
+    // Test boolean
+    let is_working = true;
+    println("Compiler working:", is_working);
+}

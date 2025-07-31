@@ -96,6 +96,12 @@ impl Parser {
         
         // Parse statements and functions inside the language block
         while !self.check(&TokenKind::RightBrace) && !self.is_at_end() {
+            // Skip newlines inside language blocks
+            if self.check(&TokenKind::Newline) {
+                self.advance();
+                continue;
+            }
+            
             if self.check(&TokenKind::Function) {
                 // Parse function declaration
                 let function = self.parse_function(&lang_block.language.clone())?;
@@ -1040,6 +1046,11 @@ impl Parser {
                     properties,
                     span,
                 })
+            }
+            TokenKind::Newline => {
+                // Skip newlines and try to parse the next token
+                self.advance();
+                self.parse_primary()
             }
             _ => Err(format!("Unexpected token: {:?}", token.kind).into()),
         }

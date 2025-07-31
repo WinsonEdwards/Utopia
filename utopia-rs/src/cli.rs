@@ -747,13 +747,105 @@ fn handle_run(input: Option<String>, args: Vec<String>, target: String, verbose:
         return Err(format!("File not found: {}", filename).into());
     }
     
-    // Create runtime and execute
-    // This part would require a proper Utopia runtime to be implemented
-    // For now, it just prints a message
-    println!("{}", "Running Utopia program directly is not yet implemented. This feature is under development.");
-    println!("{}", "Please use the REPL for interactive execution.");
+    // Determine target language for execution (default to Python for quick execution)
+    let execution_target = if target == "auto" || target.is_empty() || target == "native" {
+        "python".to_string()
+    } else {
+        target
+    };
     
-    Ok(())
+    if verbose {
+        println!("{}", format!("📝 Compiling {} to {} for execution...", filename, execution_target).bright_green());
+    }
+    
+    // Read and parse the file
+    let source = std::fs::read_to_string(&filename)
+        .map_err(|e| format!("Error reading file {}: {}", filename, e))?;
+    
+    // Create transformer manager
+    let transformer_manager = crate::transformers::TransformerManager::new();
+    
+    // Parse the program
+    let mut lexer = crate::lexer::Lexer::new(&source);
+    let tokens = lexer.tokenize()
+        .map_err(|e| format!("Tokenization error: {}", e))?;
+    let mut parser = crate::parser::Parser::new(tokens);
+    let program = parser.parse()
+        .map_err(|e| format!("Parse error: {}", e))?;
+    
+    // Generate code
+    let result = transformer_manager.transform(&execution_target, &program)
+        .map_err(|e| format!("Compilation error: {}", e))?;
+    
+    // Write to temporary file for execution
+    let temp_file = match execution_target.as_str() {
+        "python" => format!("temp_{}.py", std::process::id()),
+        "javascript" | "js" => format!("temp_{}.js", std::process::id()),
+        "go" => format!("temp_{}.go", std::process::id()),
+        "java" => format!("TempProgram_{}.java", std::process::id()),
+        "rust" => format!("temp_{}.rs", std::process::id()),
+        "c" => format!("temp_{}.c", std::process::id()),
+        _ => format!("temp_{}.out", std::process::id()),
+    };
+    
+    std::fs::write(&temp_file, result)
+        .map_err(|e| format!("Error writing temporary file: {}", e))?;
+    
+    // Execute the compiled program
+    let execute_result = match execution_target.as_str() {
+        "python" => {
+            if verbose {
+                println!("{}", "🐍 Executing with Python...".bright_yellow());
+            }
+            std::process::Command::new("python3")
+                .arg(&temp_file)
+                .args(&args)
+                .status()
+        }
+        "javascript" | "js" => {
+            if verbose {
+                println!("{}", "🚀 Executing with Node.js...".bright_yellow());
+            }
+            std::process::Command::new("node")
+                .arg(&temp_file)
+                .args(&args)
+                .status()
+        }
+        "go" => {
+            if verbose {
+                println!("{}", "🔷 Executing with Go...".bright_yellow());
+            }
+            std::process::Command::new("go")
+                .arg("run")
+                .arg(&temp_file)
+                .args(&args)
+                .status()
+        }
+        _ => {
+            // Clean up temp file
+            let _ = std::fs::remove_file(&temp_file);
+            return Err(format!("Direct execution not supported for target language: {}", execution_target).into());
+        }
+    };
+    
+    // Clean up temporary file
+    let _ = std::fs::remove_file(&temp_file);
+    
+    match execute_result {
+        Ok(status) => {
+            if verbose {
+                if status.success() {
+                    println!("{}", "✅ Program executed successfully!".bright_green().bold());
+                } else {
+                    println!("{}", "❌ Program execution failed.".bright_red().bold());
+                }
+            }
+            Ok(())
+        }
+        Err(e) => {
+            Err(format!("Failed to execute program: {}. Make sure {} is installed.", e, execution_target).into())
+        }
+    }
 }
 
 fn handle_clean(_path: String, _all: bool, verbose: bool) -> Result<()> {
